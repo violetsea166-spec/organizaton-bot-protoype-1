@@ -1,0 +1,29 @@
+: root {
+  --primary-color: #3498db;
+  --bg-overlay: rgba(255, 255, 255, 0.8);
+  --bg-image: url('https://source.unsplash.com/random/1920x1080?nature');
+  --assistant-size: 100px;
+}
+
+#app-viewport {
+  width: 100vw;
+  height: 100vh;
+  background-image: var(--bg-image);
+  background-size: cover;
+  transition: all 0.5s ease; /* Smooth transitions for the wallpaper */
+}
+
+.assistant-avatar {
+  width: var(--assistant-size);
+  height: var(--assistant-size);
+  background-color: var(--primary-color);
+  border-radius: 50%; /* Makes it a circle */
+  box-shadow: 0 0 20px var(--primary-color);
+}
+
+.settings-panel {
+  background: var(--bg-overlay);
+  backdrop-filter: blur(10px); /* The "Glass" effect */
+  padding: 20px;
+  border-radius: 15px;
+}
