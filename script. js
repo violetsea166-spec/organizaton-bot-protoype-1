@@ -1,0 +1,83 @@
+const synth = window.speechSynthesis;
+const voiceSelect = document.querySelector('#voiceSelect');
+let habits = JSON.parse(localStorage.getItem('habits')) || [];
+
+// 1. Voice Initialization
+function populateVoices() {
+    const voices = synth.getVoices();
+    voiceSelect.innerHTML = voices
+        .map(v => `<option value="${v.name}">${v.name} (${v.lang})</option>`)
+        .join('');
+}
+
+// Ensure voices are loaded (some browsers load them asynchronously)
+populateVoices();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = populateVoices;
+}
+
+// 2. The AI Voice Helper
+function assistantSpeak(text) {
+    const utterThis = new SpeechSynthesisUtterance(text);
+    const selectedVoice = voiceSelect.value;
+    utterThis.voice = synth.getVoices().find(v => v.name === selectedVoice);
+    utterThis.pitch = 0.8; // Deepen voice for Alfred/Jarvis vibe
+    utterThis.rate = 0.9;
+    synth.speak(utterThis);
+}
+
+// 3. Vibration and Notification Logic
+function triggerReminder(habitName) {
+    // Vibration Pattern: 500ms on, 200ms off, 500ms on
+    if (navigator.vibrate) {
+        navigator.vibrate([500, 200, 500]);
+    }
+    assistantSpeak(`Excuse me, Master. It is time for your habit: ${habitName}`);
+    alert(`Reminder: ${habitName}`);
+}
+
+// 4. Habit Tracking & Progress
+function addHabit() {
+    const name = document.getElementById('habitInput').value;
+    const time = document.getElementById('reminderTime').value;
+    
+    if (!name) return;
+
+    const habit = { id: Date.now(), name, time, completed: false };
+    habits.push(habit);
+    saveAndRender();
+    
+    // Simple mock of a scheduler
+    if (time) {
+        const [hrs, mins] = time.split(':');
+        console.log(`Reminder set for ${name} at ${hrs}:${mins}`);
+    }
+}
+
+function toggleHabit(id) {
+    habits = habits.map(h => h.id === id ? {...h, completed: !h.completed} : h);
+    if (habits.find(h => h.id === id).completed) {
+        assistantSpeak("Excellent progress, Master.");
+    }
+    saveAndRender();
+}
+
+function saveAndRender() {
+    localStorage.setItem('habits', JSON.stringify(habits));
+    const list = document.getElementById('habitList');
+    list.innerHTML = habits.map(h => `
+        <li class="habit-item">
+            <span>${h.name} <small>(${h.time || 'No time'})</small></span>
+            <button onclick="toggleHabit(${h.id})">${h.completed ? '✓' : 'Done'}</button>
+        </li>
+    `).join('');
+
+    // Update Progress Bar
+    const completed = habits.filter(h => h.completed).length;
+    const percent = habits.length ? (completed / habits.length) * 100 : 0;
+    document.getElementById('main-progress').style.width = percent + '%';
+    document.getElementById('progress-text').innerText = `${Math.round(percent)}% Complete`;
+}
+
+// Initial Render
+saveAndRender();
