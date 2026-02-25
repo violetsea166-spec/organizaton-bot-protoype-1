@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Assistant Shell</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        <header>
+            <div id="assistant-circle"></div>
+            <h1 id="greeting">Awaiting orders, Master Wayne...</h1>
+            <div class="voice-selector">
+                <label for="voiceSelect">Assistant Voice:</label>
+                <select id="voiceSelect"></select>
+            </div>
+        </header>
+
+        <section class="progress-container">
+            <h3>Daily Momentum</h3>
+            <div class="progress-bar">
+                <div id="main-progress" style="width: 0%"></div>
+            </div>
+            <p id="progress-text">0% Complete</p>
+        </section>
+
+        <main id="tracker">
+            <div class="input-group">
+                <input type="text" id="habitInput" placeholder=" Add a habit (e.g., Drink Water)">
+                <input type="time" id="reminderTime">
+                <button onclick="addHabit()">Add Habit</button>
+            </div>
+            <ul id="habitList"></ul>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
