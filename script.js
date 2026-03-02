@@ -1,23 +1,48 @@
-// 1. Change the Assistant/Theme color
-function changeTheme(type) {
-  const root = document.documentElement;
-  
-  if (type === 'fire') {
-    root.style.setProperty('--primary-color', '#ff4b2b');
-    root.style.setProperty('--bg-overlay', 'rgba(50, 0, 0, 0.7)');
-  } else if (type === 'ocean') {
-    root.style.setProperty('--primary-color', '#00d2ff');
-    root.style.setProperty('--bg-overlay', 'rgba(0, 20, 50, 0.7)');
-  }
+const SUPABASE_URL = "YOUR_URL_HERE";
+const SUPABASE_KEY = "YOUR_KEY_HERE";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// --- JARVIS SCOLDING FEATURE ---
+function scoldUser(habitName) {
+    document.body.classList.add('scold-active');
+    assistantSpeak(`Master, your streak for ${habitName} has reset. This inconsistency is... disappointing. Do better.`);
+    setTimeout(() => document.body.classList.remove('scold-active'), 2000);
 }
 
-// 2. Update Wallpaper from Input
-function updateBG(url) {
-  document.documentElement.style.setProperty('--bg-image', `url(${url})`);
+// --- SYSTEM LOGGING ---
+function logSystem(msg, isErr = false) {
+    const logs = document.getElementById('log-entries');
+    logs.innerHTML = `<div class="${isErr ? 'error' : ''}">[${new Date().toLocaleTimeString()}] ${msg}</div>` + logs.innerHTML;
 }
 
-// 3. Simple "Human" touch
-const assistant = document.getElementById('assistant-greeting');
-setTimeout(() => {
-  assistant.innerText = "You look like you're ready to be productive today!";
-}, 3000);
+// --- STREAK CALCULATION ---
+async function completeHabit(id, currentStreak, lastCompleted) {
+    const today = new Date().toDateString();
+    const lastDate = lastCompleted ? new Date(lastCompleted).toDateString() : null;
+
+    if (today === lastDate) {
+        logSystem("Already completed today.");
+        return;
+    }
+
+    // If you missed more than 1 day, it resets to 1. If 1 day ago, it adds +1.
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    let newStreak = 1;
+    if (lastDate === yesterday.toDateString()) {
+        newStreak = currentStreak + 1;
+    } else if (lastDate !== null) {
+        scoldUser("this task"); // Trigger scolding if streak was broken
+    }
+
+    const { error } = await supabase
+        .from('habits')
+        .update({ streak_count: newStreak, last_completed: new Date().toISOString() })
+        .eq('id', id);
+
+    if (error) logSystem(error.message, true);
+    else fetchHabits();
+}
+
+// Add your handleLogin and fetchHabits from before here!
