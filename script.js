@@ -15,7 +15,39 @@ function logSystem(msg, isErr = false) {
     logs.innerHTML = `<div class="${isErr ? 'error' : ''}">[${new Date().toLocaleTimeString()}] ${msg}</div>` + logs.innerHTML;
 }
 
-// --- STREAK CALCULATION ---
+// --- VICTORY PROTOCOL ---
+function triggerVictory() {
+    const overlay = document.getElementById('victory-overlay');
+    overlay.classList.remove('victory-hidden');
+    
+    // JARVIS Congratulates you
+    assistantSpeak("Extraordinary work, Master. You've maintained the protocol for a full week. Your momentum is undeniable.");
+    
+    // Hide after 5 seconds
+    setTimeout(() => {
+        overlay.classList.add('victory-hidden');
+    }, 5000);
+}
+
+// --- UPDATE YOUR COMPLETE HABIT FUNCTION ---
+async function completeHabit(id, currentStreak, lastCompleted) {
+    // ... (Your existing date check logic) ...
+
+    let newStreak = (lastDate === yesterday.toDateString()) ? currentStreak + 1 : 1;
+
+    // CHECK FOR VICTORY
+    if (newStreak === 7) {
+        triggerVictory();
+    }
+
+    const { error } = await supabase
+        .from('habits')
+        .update({ streak_count: newStreak, last_completed: new Date().toISOString() })
+        .eq('id', id);
+
+    if (error) logSystem(error.message, true);
+    else fetchHabits();
+}// --- STREAK CALCULATION ---
 async function completeHabit(id, currentStreak, lastCompleted) {
     const today = new Date().toDateString();
     const lastDate = lastCompleted ? new Date(lastCompleted).toDateString() : null;
