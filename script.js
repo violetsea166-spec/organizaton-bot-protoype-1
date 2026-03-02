@@ -76,7 +76,43 @@ async function completeHabit(id, currentStreak, lastCompleted) {
     if (error) logSystem(error.message, true);
     else fetchHabits();
 }
+// --- FAILURE PROTOCOL ---
+function triggerFailure() {
+    const overlay = document.getElementById('failure-overlay');
+    overlay.classList.remove('failure-hidden');
+    
+    // JARVIS Scolding (High Quality Voice)
+    assistantSpeak("System failure. Your streak has been terminated due to inactivity. I expected more focus, Master.");
+}
 
+function restartProtocol() {
+    document.getElementById('failure-overlay').classList.add('failure-hidden');
+    logSystem("Protocol re-initialized. Don't fail again.");
+}
+
+// --- CHECK FOR INACTIVITY (Run this after fetchHabits) ---
+function checkForInactivity(habits) {
+    const fortyEightHours = 48 * 60 * 60 * 1000; // 48 hours in milliseconds
+    const now = new Date();
+
+    habits.forEach(h => {
+        if (h.last_completed) {
+            const lastDate = new Date(h.last_completed);
+            if (now - lastDate > fortyEightHours && h.streak_count > 0) {
+                // They missed their window!
+                resetStreakInDB(h.id);
+                triggerFailure();
+            }
+        }
+    });
+}
+
+async function resetStreakInDB(id) {
+    await supabase
+        .from('habits')
+        .update({ streak_count: 0 })
+        .eq('id', id);
+}
 // Add your handleLogin and fetchHabits from before here!
 async function fetchHabits() {
     try {
