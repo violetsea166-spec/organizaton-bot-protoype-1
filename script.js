@@ -46,3 +46,26 @@ async function completeHabit(id, currentStreak, lastCompleted) {
 }
 
 // Add your handleLogin and fetchHabits from before here!
+async function fetchHabits() {
+    try {
+        const { data, error } = await supabase
+            .from('habits')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const grid = document.getElementById('habit-grid');
+        grid.innerHTML = data.map(h => `
+            <div class="habit-pin">
+                <h3>${h.name}</h3>
+                <div class="streak-counter">🔥 ${h.streak_count || 0} Day Streak</div>
+                <button onclick="completeHabit('${h.id}', ${h.streak_count}, '${h.last_completed}')" class="game-btn">
+                    COMPLETE MISSION
+                </button>
+            </div>
+        `).join('');
+    } catch (err) {
+        logSystem("FETCH_ERROR: " + err.message, true);
+    }
+}
