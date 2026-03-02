@@ -38,6 +38,10 @@
     <div id="victory-overlay" class="victory-hidden">
     <div class="victory-banner">VICTORY_ACHIEVED</div>
     <div class="victory-subtext">STREAK: 7 DAYS - PROTOCOL COMPLETE</div>
-</div><script src="script.js"></script>
+</div><script src="script.js"></script><div id="failure-overlay" class="failure-hidden">
+    <div class="failure-glitch">MISSION_FAILED</div>
+    <div class="failure-subtext">CRITICAL CONSISTENCY ERROR: STREAK LOST</div>
+    <button onclick="restartProtocol()" class="game-btn">RE-INITIALIZE PROTOCOL</button>
+</div>
 </body>
 </html>
