@@ -1,139 +1,98 @@
+// --- CONFIGURATION ---
 const SUPABASE_URL = 'https://erouxtuagzdpkaywxqld.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_laAnJCp0zc5FDr_h2WqgpA_PohjFjvM';
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const ELEVEN_LABS_KEY = "YOUR_ELEVEN_LABS_KEY"; // Update this!
 
-// --- JARVIS SCOLDING FEATURE ---
-function scoldUser(habitName) {
-    document.body.classList.add('scold-active');
-    assistantSpeak(`Master, your streak for ${habitName} has reset. This inconsistency is... disappointing. Do better.`);
-    setTimeout(() => document.body.classList.remove('scold-active'), 2000);
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// --- VOICE ENGINE ---
+async function assistantSpeak(text) {
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    // Replace with ElevenLabs fetch call if key is provided
+    console.log("JARVIS says: " + text);
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utterance);
 }
 
-// --- SYSTEM LOGGING ---
-function logSystem(msg, isErr = false) {
-    const logs = document.getElementById('log-entries');
-    logs.innerHTML = `<div class="${isErr ? 'error' : ''}">[${new Date().toLocaleTimeString()}] ${msg}</div>` + logs.innerHTML;
-}
-
-// --- VICTORY PROTOCOL ---
-function triggerVictory() {
-    const overlay = document.getElementById('victory-overlay');
-    overlay.classList.remove('victory-hidden');
-    
-    // JARVIS Congratulates you
-    assistantSpeak("Extraordinary work, Master. You've maintained the protocol for a full week. Your momentum is undeniable.");
-    
-    // Hide after 5 seconds
-    setTimeout(() => {
-        overlay.classList.add('victory-hidden');
-    }, 5000);
-}
-
-// --- UPDATE YOUR COMPLETE HABIT FUNCTION ---
-async function completeHabit(id, currentStreak, lastCompleted) {
-    // ... (Your existing date check logic) ...
-
-    let newStreak = (lastDate === yesterday.toDateString()) ? currentStreak + 1 : 1;
-
-    // CHECK FOR VICTORY
-    if (newStreak === 7) {
-        triggerVictory();
+// --- AUTHENTICATION ---
+async function handleLogin() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const { data, error } = await db.auth.signInWithPassword({ email, password });
+    if (error) {
+        logSystem("ACCESS DENIED: " + error.message, true);
+    } else {
+        document.getElementById('auth-section').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        assistantSpeak("Identity confirmed. Systems online.");
+        fetchHabits();
     }
-
-    const { error } = await supabase
-        .from('habits')
-        .update({ streak_count: newStreak, last_completed: new Date().toISOString() })
-        .eq('id', id);
-
-    if (error) logSystem(error.message, true);
-    else fetchHabits();
-}// --- STREAK CALCULATION ---
-async function completeHabit(id, currentStreak, lastCompleted) {
-    const today = new Date().toDateString();
-    const lastDate = lastCompleted ? new Date(lastCompleted).toDateString() : null;
-
-    if (today === lastDate) {
-        logSystem("Already completed today.");
-        return;
-    }
-
-    // If you missed more than 1 day, it resets to 1. If 1 day ago, it adds +1.
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    let newStreak = 1;
-    if (lastDate === yesterday.toDateString()) {
-        newStreak = currentStreak + 1;
-    } else if (lastDate !== null) {
-        scoldUser("this task"); // Trigger scolding if streak was broken
-    }
-
-    const { error } = await supabase
-        .from('habits')
-        .update({ streak_count: newStreak, last_completed: new Date().toISOString() })
-        .eq('id', id);
-
-    if (error) logSystem(error.message, true);
-    else fetchHabits();
-}
-// --- FAILURE PROTOCOL ---
-function triggerFailure() {
-    const overlay = document.getElementById('failure-overlay');
-    overlay.classList.remove('failure-hidden');
-    
-    // JARVIS Scolding (High Quality Voice)
-    assistantSpeak("System failure. Your streak has been terminated due to inactivity. I expected more focus, Master.");
 }
 
-function restartProtocol() {
-    document.getElementById('failure-overlay').classList.add('failure-hidden');
-    logSystem("Protocol re-initialized. Don't fail again.");
-}
-
-// --- CHECK FOR INACTIVITY (Run this after fetchHabits) ---
-function checkForInactivity(habits) {
-    const fortyEightHours = 48 * 60 * 60 * 1000; // 48 hours in milliseconds
-    const now = new Date();
-
-    habits.forEach(h => {
-        if (h.last_completed) {
-            const lastDate = new Date(h.last_completed);
-            if (now - lastDate > fortyEightHours && h.streak_count > 0) {
-                // They missed their window!
-                resetStreakInDB(h.id);
-                triggerFailure();
-            }
-        }
-    });
-}
-
-async function resetStreakInDB(id) {
-    await supabase
-        .from('habits')
-        .update({ streak_count: 0 })
-        .eq('id', id);
-}
-// Add your handleLogin and fetchHabits from before here!
+// --- CORE HABIT LOGIC ---
 async function fetchHabits() {
     try {
-        const { data, error } = await supabase
-            .from('habits')
-            .select('*')
-            .order('created_at', { ascending: false });
-
+        const { data, error } = await db.from('habits').select('*').order('created_at', { ascending: false });
         if (error) throw error;
 
         const grid = document.getElementById('habit-grid');
         grid.innerHTML = data.map(h => `
             <div class="habit-pin">
                 <h3>${h.name}</h3>
-                <div class="streak-counter">🔥 ${h.streak_count || 0} Day Streak</div>
-                <button onclick="completeHabit('${h.id}', ${h.streak_count}, '${h.last_completed}')" class="game-btn">
-                    COMPLETE MISSION
-                </button>
+                <div class="streak-badge">🔥 ${h.streak_count || 0} Days</div>
+                <button onclick="completeHabit('${h.id}', ${h.streak_count}, '${h.last_completed}')" class="game-btn">COMPLETE</button>
             </div>
         `).join('');
-    } catch (err) {
-        logSystem("FETCH_ERROR: " + err.message, true);
-    }
+
+        let total = data.reduce((acc, h) => acc + (h.streak_count || 0), 0);
+        document.getElementById('global-streak').innerText = total;
+        updateSocialLink(total);
+        checkForInactivity(data);
+    } catch (err) { logSystem(err.message, true); }
 }
+
+async function completeHabit(id, currentStreak, lastCompleted) {
+    const today = new Date().toDateString();
+    const lastDate = lastCompleted ? new Date(lastCompleted).toDateString() : null;
+    if (today === lastDate) { logSystem("Already completed today."); return; }
+
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+    let newStreak = (lastDate === yesterday.toDateString()) ? currentStreak + 1 : 1;
+
+    if (newStreak === 7) triggerVictory();
+    if (lastDate !== null && lastDate !== yesterday.toDateString()) {
+        scoldUser("this task");
+    }
+
+    const { error } = await db.from('habits').update({ streak_count: newStreak, last_completed: new Date().toISOString() }).eq('id', id);
+    if (!error) fetchHabits();
+}
+
+// --- SOCIAL LINK ---
+function updateSocialLink(total) {
+    let rank = Math.min(Math.floor(total / 10) + 1, 10);
+    document.getElementById('social-rank').innerText = rank;
+    document.getElementById('bond-fill').style.width = (total % 10) * 10 + "%";
+    const titles = ["STRANGER", "ACQUAINTANCE", "RELIABLE ASSET", "TRUSTED PARTNER", "CHOSEN COMMANDER"];
+    document.getElementById('bond-status').innerText = titles[Math.min(Math.floor(rank/2), 4)];
+}
+
+// --- OVERLAYS & ERRORS ---
+function logSystem(msg, isErr = false) {
+    const logs = document.getElementById('log-entries');
+    logs.innerHTML = `<div class="log-entry ${isErr ? 'error' : ''}">[${new Date().toLocaleTimeString()}] ${msg}</div>` + logs.innerHTML;
+}
+
+function triggerVictory() { document.getElementById('victory-overlay').classList.remove('victory-hidden'); assistantSpeak("Victory achieved, Master."); }
+function restartProtocol() { document.getElementById('failure-overlay').classList.add('failure-hidden'); }
+function scoldUser(name) { assistantSpeak(`Your streak for ${name} has reset. Disappointing.`); }
+
+function checkForInactivity(habits) {
+    const fortyEightHours = 48 * 60 * 60 * 1000;
+    habits.forEach(h => {
+        if (h.last_completed && (new Date() - new Date(h.last_completed) > fortyEightHours) && h.streak_count > 0) {
+            triggerFailure();
+        }
+    });
+}
+function triggerFailure() { document.getElementById('failure-overlay').classList.remove('failure-hidden'); assistantSpeak("Mission failed. Focus lost."); }
