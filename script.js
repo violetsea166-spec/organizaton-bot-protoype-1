@@ -1,5 +1,5 @@
-const SUPABASE_URL = "YOUR_URL_HERE";
-const SUPABASE_KEY = "YOUR_KEY_HERE";
+const SUPABASE_URL = 'https://erouxtuagzdpkaywxqld.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_laAnJCp0zc5FDr_h2WqgpA_PohjFjvM';
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- JARVIS SCOLDING FEATURE ---
