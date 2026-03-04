@@ -96,3 +96,25 @@ function checkForInactivity(habits) {
     });
 }
 function triggerFailure() { document.getElementById('failure-overlay').classList.remove('failure-hidden'); assistantSpeak("Mission failed. Focus lost."); }
+async function addNewHabit() {
+    const name = document.getElementById('habitName').value;
+    if (!name) return;
+
+    const { data: { user } } = await db.auth.getUser();
+    const { error } = await db.from('habits').insert([
+        { name: name, user_id: user.id, streak_count: 0 }
+    ]);
+
+    if (error) logSystem(error.message, true);
+    else {
+        document.getElementById('habitName').value = '';
+        fetchHabits();
+    }
+}
+
+function handleLogout() {
+    db.auth.signOut();
+    document.getElementById('main-content').style.display = 'none';
+    document.getElementById('auth-section').style.display = 'block';
+    assistantSpeak("Systems powering down. Goodbye, Master.");
+}
