@@ -1,24 +1,28 @@
-
 // --- CONFIGURATION ---
+// 1. SETTINGS AT THE TOP
 const SUPABASE_URL = 'https://erouxtuagzdpkaywxqld.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_laAnJCp0zc5FDr_h2WqgpA_PohjFjvM';
-const ELEVEN_LABS_KEY = "YOUR_ELEVEN_LABS_KEY"; // Update this!
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- VOICE ENGINE ---
-async function assistantSpeak(text) {
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    // Replace with ElevenLabs fetch call if key is provided
-    console.log("JARVIS says: " + text);
-    const utterance = new SpeechSynthesisUtterance(text);
-    window.speechSynthesis.speak(utterance);
+// 2. INITIALIZE THE TOOL IMMEDIATELY
+// We check if supabase loaded first to prevent the "not defined" crash
+let db;
+if (typeof supabase !== 'undefined') {
+    db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} else {
+    console.error("Supabase library failed to load. Check your internet connection.");
 }
 
-// --- AUTHENTICATION ---
+// 3. YOUR FUNCTIONS GO BELOW
 async function handleLogin() {
+    if (!db) {
+        logSystem("System offline: Database connection not established.", true);
+        return;
+    }
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    
     const { data, error } = await db.auth.signInWithPassword({ email, password });
+    
     if (error) {
         logSystem("ACCESS DENIED: " + error.message, true);
     } else {
