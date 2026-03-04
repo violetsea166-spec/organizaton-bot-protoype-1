@@ -59,3 +59,5 @@ body { background: var(--bg); color: white; font-family: 'Arial Black', sans-ser
 /* Log Console */
 .console-box { background: #000; color: #0f0; font-family: monospace; height: 100px; overflow-y: auto; padding: 10px; }
 .log-entry.error { color: var(--accent); }
+.victory-hidden { display: none !important; }
+.failure-hidden { display: none !important; }
