@@ -1,10 +1,9 @@
 
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // --- CONFIGURATION ---
 const SUPABASE_URL = 'https://erouxtuagzdpkaywxqld.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_laAnJCp0zc5FDr_h2WqgpA_PohjFjvM';
 const ELEVEN_LABS_KEY = "YOUR_ELEVEN_LABS_KEY"; // Update this!
-
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- VOICE ENGINE ---
 async function assistantSpeak(text) {
