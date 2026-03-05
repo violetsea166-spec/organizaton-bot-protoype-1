@@ -61,3 +61,8 @@ body { background: var(--bg); color: white; font-family: 'Arial Black', sans-ser
 .log-entry.error { color: var(--accent); }
 .victory-hidden { display: none !important; }
 .failure-hidden { display: none !important; }
+.victory-hidden, .failure-hidden {
+    display: none !important;
+    visibility: hidden;
+    pointer-events: none;
+}
