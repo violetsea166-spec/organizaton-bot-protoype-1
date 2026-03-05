@@ -1,29 +1,68 @@
-: root {
-  --primary-color: #3498db;
-  --bg-overlay: rgba(255, 255, 255, 0.8);
-  --bg-image: url('https://source.unsplash.com/random/1920x1080?nature');
-  --assistant-size: 100px;
+:root {
+    --bg: #050505;
+    --accent: #ff003c;
+    --secondary: #00d2ff;
+    --panel-bg: #fff;
 }
 
-#app-viewport {
-  width: 100vw;
-  height: 100vh;
-  background-image: var(--bg-image);
-  background-size: cover;
-  transition: all 0.5s ease; /* Smooth transitions for the wallpaper */
+body { background: var(--bg); color: white; font-family: 'Arial Black', sans-serif; padding: 20px; overflow-x: hidden; }
+
+.slanted {
+    clip-path: polygon(0 0, 100% 2%, 98% 100%, 2% 98%);
+    background: var(--panel-bg);
+    color: black;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
-.assistant-avatar {
-  width: var(--assistant-size);
-  height: var(--assistant-size);
-  background-color: var(--primary-color);
-  border-radius: 50%; /* Makes it a circle */
-  box-shadow: 0 0 20px var(--primary-color);
+/* Authentication Styles */
+.auth-card { max-width: 400px; margin: 100px auto; border-left: 10px solid var(--accent); }
+.input-group input { display: block; width: 90%; margin: 10px 0; padding: 12px; background: #eee; border: none; }
+
+.game-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    cursor: pointer;
+    font-weight: bold;
+    clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
 }
 
-.settings-panel {
-  background: var(--bg-overlay);
-  backdrop-filter: blur(10px); /* The "Glass" effect */
-  padding: 20px;
-  border-radius: 15px;
+/* Social Link UI */
+.rank-badge { background: #000; color: #fff; padding: 5px 15px; font-size: 0.8rem; display: inline-block; }
+.bond-meter { width: 100%; height: 8px; background: #222; margin: 10px 0; }
+#bond-fill { height: 100%; background: var(--secondary); transition: width 1s; box-shadow: 0 0 10px var(--secondary); }
+
+/* Habit Grid */
+.masonry { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+.habit-pin { background: white; color: black; padding: 15px; border-right: 8px solid var(--accent); }
+
+/* Overlays */
+#victory-overlay, #failure-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000;
+}
+
+#victory-overlay { background: rgba(255, 0, 60, 0.95); transition: transform 0.5s; }
+.victory-hidden { transform: translateX(-110%); }
+.victory-banner { background: #000; color: #fff; font-size: 4rem; padding: 20px; transform: skewX(-10deg); }
+
+.victory-subtext {
+    color: black; background: white; padding: 5px 20px; margin-top: 20px;
+} /* Fixed the bracket here! */
+
+#failure-overlay { background: rgba(0, 0, 0, 0.98); transition: opacity 0.5s; }
+.failure-hidden { opacity: 0; pointer-events: none; }
+.failure-glitch { font-size: 4rem; text-shadow: 4px 0 var(--accent), -2px 0 var(--secondary); }
+
+/* Log Console */
+.console-box { background: #000; color: #0f0; font-family: monospace; height: 100px; overflow-y: auto; padding: 10px; }
+.log-entry.error { color: var(--accent); }
+.victory-hidden { display: none !important; }
+.failure-hidden { display: none !important; }
+.victory-hidden, .failure-hidden {
+    display: none !important;
+    visibility: hidden;
+    pointer-events: none;
 }
