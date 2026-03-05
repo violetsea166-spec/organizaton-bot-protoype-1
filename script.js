@@ -15,7 +15,7 @@ if (typeof supabase !== 'undefined') {
 // 3. YOUR FUNCTIONS GO BELOW
 async function handleLogin() {
     if (!db) {
-        logSystem("System offline: Database connection not established.", true);
+        logSystem("CRITICAL ERROR: Database connection not established. Check your internet.", true);
         return;
     }
     const email = document.getElementById('email').value;
