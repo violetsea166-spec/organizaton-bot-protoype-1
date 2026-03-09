@@ -118,3 +118,18 @@ body { background: var(--bg); color: white; font-family: 'Arial Black', sans-ser
     height: 100%;
     background: var(--accent);
 }
+.nmh-header {
+    background: black;
+    color: white;
+    padding: 10px 30px;
+    transform: skewX(-15deg);
+    display: inline-block;
+    font-style: italic;
+}
+
+.rank-num {
+    font-size: 3rem;
+    color: var(--accent);
+    font-weight: 900;
+    margin-right: 20px;
+}
