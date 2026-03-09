@@ -66,3 +66,18 @@ body { background: var(--bg); color: white; font-family: 'Arial Black', sans-ser
     visibility: hidden;
     pointer-events: none;
 }
+/* Add this to your style.css */
+@keyframes intense-shake {
+    0% { transform: translate(0,0) rotate(0deg); }
+    10% { transform: translate(-5px, -5px) rotate(-1deg); }
+    20% { transform: translate(5px, 5px) rotate(1deg); }
+    30% { transform: translate(-5px, 5px) rotate(0deg); }
+    40% { transform: translate(5px, -5px) rotate(1deg); }
+    100% { transform: translate(0,0) rotate(0deg); }
+}
+
+#failure-overlay:not(.failure-hidden) {
+    animation: intense-shake 0.15s infinite;
+    /* Increase the glitch shadow for more distortion */
+    text-shadow: 5px 0 var(--accent), -5px 0 var(--secondary), 0 5px #fff;
+}
