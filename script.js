@@ -122,3 +122,20 @@ function handleLogout() {
     document.getElementById('auth-section').style.display = 'block';
     assistantSpeak("Systems powering down. Goodbye, Master.");
 }
+function updateGoalProgress(habits) {
+    const goalList = document.getElementById('goal-list');
+    // Example: A goal to hit a total of 50 cumulative streak days
+    const totalStreak = habits.reduce((acc, h) => acc + (h.streak_count || 0), 0);
+    const target = 50;
+    const percent = Math.min((totalStreak / target) * 100, 100);
+
+    goalList.innerHTML = `
+        <div class="goal-item">
+            <span class="rank-num">#01</span>
+            <span class="goal-text">REACH THE TOP (50 DAYS)</span>
+            <div class="goal-progress-bar">
+                <div style="width: ${percent}%"></div>
+            </div>
+        </div>
+    `;
+}
