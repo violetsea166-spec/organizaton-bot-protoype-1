@@ -29,7 +29,7 @@ async function handleLogin() {
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         assistantSpeak("Identity confirmed. Systems online.");
-        fetchHabits();
+        fetchHabits(updateGoalProgress(data);
     }
 }
 
