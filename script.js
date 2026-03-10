@@ -129,7 +129,10 @@ function updateGoalProgress(habits) {
     const totalStreak = habits.reduce((acc, h) => acc + (h.streak_count || 0), 0);
     const target = 50;
     const percent = Math.min((totalStreak / target) * 100, 100);
-
+const bar = document.getElementById('momentum-fill');
+    if (bar) {
+        bar.style.width = percent + "%";
+    }
     goalList.innerHTML = `
         <div class="goal-item">
             <span class="rank-num">#01</span>
