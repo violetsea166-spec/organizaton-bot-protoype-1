@@ -143,3 +143,22 @@ const bar = document.getElementById('momentum-fill');
         </div>
     `;
 }
+grid.innerHTML = data.map(h => {
+    // If a habit name includes "BOSS", it gets the special style
+    const isBoss = h.name.toUpperCase().includes("BOSS");
+    return `
+        <div class="habit-pin ${isBoss ? 'boss-habit' : ''}">
+            ${isBoss ? '<div class="boss-label">RANKER</div>' : ''}
+            <h3>${h.name}</h3>
+            <div class="streak-badge">🔥 ${h.streak_count || 0} Days</div>
+            ${isBoss ? `
+                <div class="boss-health-bar">
+                    <div class="health-fill" style="width: ${(h.streak_count / 10) * 100}%"></div>
+                </div>
+            ` : ''}
+            <button onclick="completeHabit('${h.id}', ${h.streak_count}, '${h.last_completed}')" class="game-btn">
+                ${isBoss ? 'FINISH HIM' : 'COMPLETE'}
+            </button>
+        </div>
+    `;
+}).join('');
