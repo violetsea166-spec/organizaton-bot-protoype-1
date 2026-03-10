@@ -133,3 +133,8 @@ body { background: var(--bg); color: white; font-family: 'Arial Black', sans-ser
     font-weight: 900;
     margin-right: 20px;
 }
+#momentum-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.8s ease-in-out;
+}
