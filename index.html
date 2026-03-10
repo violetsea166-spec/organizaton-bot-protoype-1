@@ -19,45 +19,45 @@
             <p id="auth-status"></p>
         </div>
 
-        <div id="main-content" <div class="panel goal-section slanted">
-    <h2 class="nmh-header">RANKING MISSIONS</h2>
-    <div id="goal-list">
-        <div class="goal-item">
-            <span class="rank-num">#01</span>
-            <span class="goal-text">TOTAL MOMENTUM GOAL</span>
-            <div class="goal-progress-bar"><div id="momentum-fill" style="width: 0%"></div></div>
+   <div id="main-content" style="display:none;">
+    <div class="panel assistant-card slanted">
+        <h2 id="ai-name">JARVIS</h2>
+        <div class="social-link-container">
+            <div class="rank-badge">RANK <span id="social-rank">1</span></div>
+            <div class="bond-meter"><div id="bond-fill" style="width: 10%"></div></div>
+            <p id="bond-status">STRANGER</p>
+        </div>
+        <button onclick="handleLogout()" class="logout-btn">DISCONNECT</button>
+    </div>
+
+    <div class="panel streak-header slanted">
+        <span class="fire-icon">🔥</span> TOTAL MOMENTUM: <span id="global-streak">0</span>
+    </div>
+
+    <div class="panel goal-section slanted">
+        <h2 class="nmh-header">RANKING MISSIONS</h2>
+        <div id="goal-list">
+            <div class="goal-item">
+                <span class="rank-num">#01</span>
+                <span class="goal-text">TOTAL MOMENTUM GOAL</span>
+                <div class="goal-progress-bar"><div id="momentum-fill" style="width: 0%"></div></div>
+            </div>
         </div>
     </div>
-</div>style="display:none;">
-            <div class="panel assistant-card slanted">
-                <h2 id="ai-name">JARVIS</h2>
-                
-                <div class="social-link-container">
-                    <div class="rank-badge">RANK <span id="social-rank">1</span></div>
-                    <div class="bond-meter"><div id="bond-fill" style="width: 10%"></div></div>
-                    <p id="bond-status">STRANGER</p>
-                </div>
-                
-                <button onclick="handleLogout()" class="logout-btn">DISCONNECT</button>
-            </div>
 
-            <div class="panel streak-header slanted">
-                <span class="fire-icon">🔥</span> TOTAL MOMENTUM: <span id="global-streak">0</span>
-            </div>
-
-            <div class="grid-container">
-                <div class="panel habit-input">
-                    <input type="text" id="habitName" placeholder="New Mission...">
-                    <button class="add-btn" onclick="addNewHabit()">+</button>
-                </div>
-                <div id="habit-grid" class="masonry"></div>
-            </div>
-
-            <div id="log-console" class="panel console-box">
-                <div class="console-header">SYSTEM_LOGS_V1.0</div>
-                <div id="log-entries"></div>
-            </div>
+    <div class="grid-container">
+        <div class="panel habit-input">
+            <input type="text" id="habitName" placeholder="New Mission...">
+            <button class="add-btn" onclick="addNewHabit()">+</button>
         </div>
+        <div id="habit-grid" class="masonry"></div>
+    </div>
+
+    <div id="log-console" class="panel console-box">
+        <div class="console-header">SYSTEM_LOGS_V1.0</div>
+        <div id="log-entries"></div>
+    </div>
+</div>
     </div>
 
     <div id="victory-overlay" class="victory-hidden">
