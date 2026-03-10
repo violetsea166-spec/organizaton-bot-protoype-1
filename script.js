@@ -30,7 +30,7 @@ async function handleLogin() {
         document.getElementById('main-content').style.display = 'block';
         assistantSpeak("Identity confirmed. Systems online.");
         fetchHabits();
-        updateGoalProgress(data);
+        
     }
 }
 
