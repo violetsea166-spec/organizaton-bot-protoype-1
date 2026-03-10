@@ -70,15 +70,15 @@ body { background: var(--bg); color: white; font-family: 'Arial Black', sans-ser
 /* NMH Intense Shake */
 @keyframes intense-shake {
     0% { transform: translate(0,0); }
-    25% { transform: translate(-8px, 5px) rotate(-1deg); }
-    50% { transform: translate(8px, -5px) rotate(1deg); }
-    75% { transform: translate(-8px, -5px); }
-    100% { transform: translate(0,0); }
+    25% { transform: translate(-2px, 1px) rotate(-0.5deg); }
+    50% { transform: translate(2px, -1px) rotate(0.5deg); }
+    75% { transform: translate(-1px, -1px)rotate(0deg); }
+    100% { transform: translate(0,0) rotate(0deg); }
 }
 
 #failure-overlay:not(.failure-hidden) {
     display: flex !important; /* Forces visibility when triggered */
-    animation: intense-shake 0.1s infinite;
+    animation: intense-shake 0.3s infinite;
     background: rgba(0, 0, 0, 0.9);
 }
 
