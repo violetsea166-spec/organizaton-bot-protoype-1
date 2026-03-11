@@ -194,3 +194,9 @@ const bar = document.getElementById('momentum-fill');
         </div>
     `;
 }
+function triggerBossDefeated(bossName) {
+    const overlay = document.getElementById('boss-defeat-overlay');
+    overlay.querySelector('.boss-name').innerText = bossName + " ELIMINATED";
+    overlay.classList.remove('victory-hidden');
+    assistantSpeak("Target destroyed. Your rank has increased.");
+}
