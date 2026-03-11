@@ -29,7 +29,13 @@ async function handleLogin() {
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         assistantSpeak("Identity confirmed. Systems online.");
-fetchHabits(); 
+fetchHabits(); // Add this inside the .map section of fetchHabits
+const isBoss = h.name.toUpperCase().includes("BOSS");
+
+// In the return string for the button:
+<button onclick="completeHabit('${h.id}', ${h.streak_count}, '${h.last_completed}')" class="game-btn">
+    ${isBoss ? 'FINISH HIM' : 'COMPLETE MISSION'}
+</button>
 // This fixed the missing ) error. Now the script can breathe!        
     }
 }
