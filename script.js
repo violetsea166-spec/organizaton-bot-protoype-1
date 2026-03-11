@@ -15,7 +15,7 @@ if (typeof supabase !== 'undefined') {
 // 3. YOUR FUNCTIONS GO BELOW
 async function handleLogin() {
     if (!db) {
-        logSystem("CRITICAL ERROR: Database connection not established. Check your internet.", true);
+        logSystem("CRITICAL ERROR: Database connection not established.", true);
         return;
     }
     const email = document.getElementById('email').value;
@@ -29,7 +29,9 @@ async function handleLogin() {
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         assistantSpeak("Identity confirmed. Systems online.");
-fetchHabits(); // Add this inside the .map section of fetchHabits
+        fetchHabits(); // Only this needs to be here!
+    }
+}
 const isBoss = h.name.toUpperCase().includes("BOSS");
 
 // In the return string for the button:
