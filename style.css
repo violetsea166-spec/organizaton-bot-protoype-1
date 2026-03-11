@@ -212,3 +212,27 @@ body { background: var(--bg); color: white; font-family: 'Arial Black', sans-ser
     background: linear-gradient(90deg, #ff003c, #ff5e00);
     box-shadow: 0 0 10px #ff003c;
 }
+.boss-defeat-style {
+    background: linear-gradient(45deg, #000 25%, #ff003c 25%, #ff003c 50%, #000 50%, #000 75%, #ff003c 75%);
+    background-size: 100px 100px;
+    animation: stripes 2s linear infinite;
+}
+
+@keyframes stripes {
+    from { background-position: 0 0; }
+    to { background-position: 100px 100px; }
+}
+
+.rank-up-text {
+    font-size: 6rem;
+    color: white;
+    font-style: italic;
+    text-shadow: 10px 10px 0px #000;
+}
+
+/* Subtler Shake Fix */
+@keyframes intense-shake {
+    0% { transform: translate(0,0); }
+    50% { transform: translate(2px, 1px); }
+    100% { transform: translate(0,0); }
+}
