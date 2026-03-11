@@ -7,18 +7,48 @@ if (typeof supabase !== 'undefined') {
 }
 
 async function handleLogin() {
-    if (!db) return;
+    if (!db) {
+        logSystem("SYSTEM ERROR: Database offline.", true);
+        return;
+    }
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    
+    if (!email || !password) {
+        logSystem("ERROR: Credentials required.", true);
+        return;
+    }
+
     const { data, error } = await db.auth.signInWithPassword({ email, password });
     
     if (error) {
         logSystem("ACCESS DENIED: " + error.message, true);
+        // This will tell you if the user doesn't exist
     } else {
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        assistantSpeak("Identity confirmed. Systems online.");
+        assistantSpeak("Identity confirmed. Welcome back, Master.");
         fetchHabits();
+    }
+}
+
+async function handleSignUp() {
+    if (!db) return;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) {
+        logSystem("ERROR: Email and Passkey required for registration.", true);
+        return;
+    }
+
+    const { data, error } = await db.auth.signUp({ email, password });
+    
+    if (error) {
+        logSystem("REGISTRATION FAILED: " + error.message, true);
+    } else {
+        logSystem("SUCCESS: Protocol initiated. Check your email to confirm!");
+        assistantSpeak("Registration successful. Please verify your email to proceed.");
     }
 }
 
