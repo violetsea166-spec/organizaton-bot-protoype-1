@@ -170,6 +170,20 @@ const bar = document.getElementById('momentum-fill');
     if (bar) {
         bar.style.width = percent + "%";
     }
+    async function handleSignUp() {
+    if (!db) return;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    const { data, error } = await db.auth.signUp({ email, password });
+    
+    if (error) {
+        logSystem("SIGN UP ERROR: " + error.message, true);
+    } else {
+        logSystem("PROTOCOL INITIATED: Check your email to confirm account!");
+        assistantSpeak("Registration protocol complete. Please verify your identity via email.");
+    }
+}
     goalList.innerHTML = `
         <div class="goal-item">
             <span class="rank-num">#01</span>
@@ -180,21 +194,3 @@ const bar = document.getElementById('momentum-fill');
         </div>
     `;
 }
-grid.innerHTML = data.map(h => {
-        const isBoss = h.name.toUpperCase().includes("BOSS");
-        return `
-            <div class="habit-pin ${isBoss ? 'boss-habit' : ''}">
-                ${isBoss ? '<div class="boss-label">RANKER DETECTED</div>' : ''}
-                <h3>${h.name}</h3>
-                <div class="streak-badge">🔥 ${h.streak_count || 0} Days</div>
-                ${isBoss ? `
-                    <div class="boss-health-bar">
-                        <div class="health-fill" style="width: ${Math.min((h.streak_count / 10) * 100, 100)}%"></div>
-                    </div>
-                ` : ''}
-                <button onclick="completeHabit('${h.id}', ${h.streak_count}, '${h.last_completed}')" class="game-btn">
-                    ${isBoss ? 'FINISH HIM' : 'COMPLETE'}
-                </button>
-            </div>
-        `;
-    }).join('');
