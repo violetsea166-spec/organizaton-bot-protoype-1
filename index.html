@@ -69,5 +69,9 @@
         <div class="failure-subtext">CRITICAL CONSISTENCY ERROR: STREAK LOST</div>
         <button onclick="restartProtocol()" class="game-btn">RE-INITIALIZE PROTOCOL</button>
     </div>
-
+<div id="boss-defeat-overlay" class="victory-hidden boss-defeat-style">
+    <div class="rank-up-text">RANK UP</div>
+    <div class="boss-name">RANKER ELIMINATED</div>
+    <button onclick="document.getElementById('boss-defeat-overlay').classList.add('victory-hidden')" class="game-btn">CONTINUE</button>
+</div>
 
