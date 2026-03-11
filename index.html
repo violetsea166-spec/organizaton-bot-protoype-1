@@ -10,14 +10,17 @@
 <body>
     <div id="app-shell">
         <div id="auth-section" class="panel slanted auth-card">
-            <h2 class="glitch-text">SYSTEM ACCESS</h2>
-            <div class="input-group">
-                <input type="email" id="email" placeholder="USER_EMAIL@DOMAIN.COM">
-                <input type="password" id="password" placeholder="PASSKEY">
-            </div>
-            <button onclick="handleLogin()" class="game-btn">INITIALIZE</button>
-            <p id="auth-status"></p>
-        </div>
+    <h2 class="glitch-text">SYSTEM ACCESS</h2>
+    <div class="input-group">
+        <input type="email" id="email" placeholder="USER_EMAIL@DOMAIN.COM">
+        <input type="password" id="password" placeholder="PASSKEY">
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button onclick="handleLogin()" class="game-btn">INITIALIZE</button>
+        <button onclick="handleSignUp()" class="game-btn" style="background: #444;">NEW USER</button>
+    </div>
+    <p id="auth-status"></p>
+</div>
 
    <div id="main-content" style="display:none;">
     <div class="panel assistant-card slanted">
