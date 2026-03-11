@@ -1,26 +1,15 @@
-// --- CONFIGURATION ---
-// 1. SETTINGS AT THE TOP
 const SUPABASE_URL = 'https://erouxtuagzdpkaywxqld.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_laAnJCp0zc5FDr_h2WqgpA_PohjFjvM';
 
-// 2. INITIALIZE THE TOOL IMMEDIATELY
-// We check if supabase loaded first to prevent the "not defined" crash
 let db;
 if (typeof supabase !== 'undefined') {
     db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-} else {
-    console.error("Supabase library failed to load. Check your internet connection.");
 }
 
-// 3. YOUR FUNCTIONS GO BELOW
 async function handleLogin() {
-    if (!db) {
-        logSystem("CRITICAL ERROR: Database connection not established.", true);
-        return;
-    }
+    if (!db) return;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    
     const { data, error } = await db.auth.signInWithPassword({ email, password });
     
     if (error) {
@@ -28,6 +17,46 @@ async function handleLogin() {
     } else {
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
+        assistantSpeak("Identity confirmed. Systems online.");
+        fetchHabits();
+    }
+}
+
+async function fetchHabits() {
+    const { data, error } = await db.from('habits').select('*');
+    if (error) return;
+
+    const grid = document.getElementById('habit-grid');
+    grid.innerHTML = data.map(h => {
+        const isBoss = h.name.toUpperCase().includes("BOSS");
+        return `
+            <div class="habit-pin ${isBoss ? 'boss-habit' : ''}">
+                ${isBoss ? '<div class="boss-label">RANKER</div>' : ''}
+                <h3>${h.name}</h3>
+                <div class="streak-badge">🔥 ${h.streak_count || 0} Days</div>
+                ${isBoss ? `<div class="boss-health-bar"><div class="health-fill" style="width: ${Math.min(h.streak_count * 10, 100)}%"></div></div>` : ''}
+                <button onclick="completeHabit('${h.id}', ${h.streak_count}, '${h.last_completed}')" class="game-btn">
+                    ${isBoss ? 'FINISH HIM' : 'COMPLETE'}
+                </button>
+            </div>
+        `;
+    }).join('');
+    updateGoalProgress(data);
+}
+
+function updateGoalProgress(habits) {
+    const total = habits.reduce((acc, h) => acc + (h.streak_count || 0), 0);
+    const percent = Math.min((total / 50) * 100, 100);
+    const bar = document.getElementById('momentum-fill');
+    if (bar) bar.style.width = percent + "%";
+}
+
+function triggerBossDefeated() {
+    document.getElementById('boss-defeat-overlay').classList.remove('victory-hidden');
+    assistantSpeak("Target destroyed. Rank increased.");
+}
+
+// Keep your existing assistantSpeak, logSystem, and handleLogout functions below this...
         assistantSpeak("Identity confirmed. Systems online.");
         fetchHabits(); // Only this needs to be here!
     }
