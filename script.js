@@ -221,7 +221,15 @@ function logSystem(msg, isErr = false) {
 }
 
 function triggerVictory() { document.getElementById('victory-overlay').classList.remove('victory-hidden'); assistantSpeak("Victory achieved, Master."); }
-function restartProtocol() { document.getElementById('failure-overlay').classList.add('failure-hidden'); }
+function restartProtocol() {
+    // This hides the failure screen and resets the UI
+    const failureOverlay = document.getElementById('failure-overlay');
+    if (failureOverlay) {
+        failureOverlay.classList.add('failure-hidden');
+    }
+    assistantSpeak("System rebooted. Awaiting new instructions.");
+    fetchHabits(); 
+}
 function scoldUser(name) { assistantSpeak(`Your streak for ${name} has reset. Disappointing.`); }
 
 function checkForInactivity(habits) {
