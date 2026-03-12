@@ -294,18 +294,24 @@ const bar = document.getElementById('momentum-fill');
     } catch (err) {
         console.error("SOCIAL_LINK_ERROR:", err.message);
     }
-}}
-    async function handleSignUp() {
-    if (!db) return;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    const { data, error } = await db.auth.signUp({ email, password });
-    
-    if (error) {
-        logSystem("SIGN UP ERROR: " + error.message, true);
-    } else {
-        logSystem("PROTOCOL INITIATED: Check your email to confirm account!");
+}}async function handleSignUp() {
+    try {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        const { data, error } = await db.auth.signUp({ email, password });
+        
+        if (error) throw error;
+
+        logSystem("PROTOCOL SUCCESS: User created. Attempting auto-login...");
+        
+        // Automatically log them in since we disabled email confirmation
+        await handleLogin(); 
+        
+    } catch (err) {
+        logSystem("SIGN UP ERROR: " + err.message, true);
+    }
+}
         assistantSpeak("Registration protocol complete. Please verify your identity via email.");
     }
 }
