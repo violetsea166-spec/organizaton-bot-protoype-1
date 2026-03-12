@@ -111,15 +111,6 @@ function updateGoalProgress(habits) {
     }
 }
 
-function triggerBossDefeated(bossName) {
-    const overlay = document.getElementById('boss-defeat-overlay');
-    if (overlay) {
-        overlay.querySelector('.boss-name').innerText = bossName + " ELIMINATED";
-        overlay.classList.remove('victory-hidden');
-        assistantSpeak("Target destroyed. Your rank has increased.");
-    }
-}
-
 function handleLogout() {
     db.auth.signOut();
     location.reload(); // Quick reset
@@ -184,7 +175,24 @@ async function completeHabit(id, currentStreak) {
         logSystem("UPDATE_FAILED: " + err.message, true);
     }
 }
+function triggerBossDefeated(bossName) {
+    const overlay = document.getElementById('boss-defeat-overlay');
+    if (overlay) {
+        overlay.querySelector('.boss-name').innerText = bossName.toUpperCase() + " ELIMINATED";
+        overlay.classList.remove('victory-hidden');
+        
+        // Visual flair: Grayscale the background briefly
+        document.getElementById('main-content').style.filter = "grayscale(100%) contrast(200%)";
+        
+        assistantSpeak("Ranker destroyed. Your influence grows.");
 
+        // Auto-hide after 4 seconds
+        setTimeout(() => {
+            overlay.classList.add('victory-hidden');
+            document.getElementById('main-content').style.filter = "none";
+        }, 4000);
+    }
+}
 // --- SOCIAL LINK ---
 function updateSocialLink(total) {
     let rank = Math.min(Math.floor(total / 10) + 1, 10);
