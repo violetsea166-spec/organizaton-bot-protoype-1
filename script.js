@@ -29,7 +29,7 @@ function assistantSpeak(text) {
     // Future ElevenLabs integration goes here
 }
 
-// --- AUTH LOGIC ---
+// --- REFINED AUTH LOGIC ---
 async function handleLogin() {
     try {
         if (!db) throw new Error("Database offline.");
@@ -39,42 +39,36 @@ async function handleLogin() {
         if (!email || !password) throw new Error("Credentials required.");
 
         const { data, error } = await db.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        
+        if (error) {
+            // If it says "Invalid credentials" after you just signed up, 
+            // it means the "Confirm Email" setting is still ON in Supabase.
+            throw error;
+        }
 
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        assistantSpeak("Identity confirmed. Systems online.");
+        assistantSpeak("Identity confirmed. Welcome back.");
         fetchHabits();
     } catch (err) {
-        logSystem(err.message, true);
-        assistantSpeak("Access denied.");
+        logSystem("ACCESS DENIED: " + err.message, true);
     }
 }
 
 async function handleSignUp() {
     try {
-        if (!db) throw new Error("Database connection offline.");
-        
+        if (!db) throw new Error("Database offline.");
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        if (!email || !password) {
-            logSystem("ERROR: Email and Passkey required for registration.", true);
-            return;
-        }
+        if (!email || !password) throw new Error("Email and Passkey required.");
 
-        const { data, error } = await db.auth.signUp({ 
-            email, 
-            password,
-            options: {
-                emailRedirectTo: window.location.origin // Helps redirect back to your site
-            }
-        });
+        const { data, error } = await db.auth.signUp({ email, password });
         
         if (error) throw error;
 
-        logSystem("PROTOCOL INITIATED: User created. Try logging in now!");
-        assistantSpeak("Registration protocol complete. Access granted.");
+        logSystem("PROTOCOL SUCCESS: Account created.");
+        assistantSpeak("Registration complete. Now click INITIALIZE to log in.");
         
     } catch (err) {
         logSystem("SIGN UP ERROR: " + err.message, true);
