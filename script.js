@@ -272,7 +272,29 @@ function updateGoalProgress(habits) {
 const bar = document.getElementById('momentum-fill');
     if (bar) {
         bar.style.width = percent + "%";
+    function updateSocialLink(habits) {
+    try {
+        const totalStreak = habits.reduce((acc, h) => acc + (h.streak_count || 0), 0);
+        
+        // Calculate Rank (Every 10 total points = 1 Rank Up)
+        const rank = Math.floor(totalStreak / 10) + 1;
+        const bondPercent = (totalStreak % 10) * 10;
+        
+        // Update UI
+        document.getElementById('social-rank').innerText = rank;
+        document.getElementById('bond-fill').style.width = bondPercent + "%";
+        
+        // Update Status Text
+        const status = document.getElementById('bond-status');
+        if (rank < 3) status.innerText = "STRANGER";
+        else if (rank < 6) status.innerText = "ACQUAINTANCE";
+        else if (rank < 9) status.innerText = "RELIABLE ALLY";
+        else status.innerText = "SOUL BOUND";
+
+    } catch (err) {
+        console.error("SOCIAL_LINK_ERROR:", err.message);
     }
+}}
     async function handleSignUp() {
     if (!db) return;
     const email = document.getElementById('email').value;
