@@ -273,3 +273,24 @@ body { background: var(--bg); color: white; font-family: 'Arial Black', sans-ser
     font-style: italic;
     letter-spacing: -5px;
 }
+.bond-meter {
+    height: 15px;
+    background: #222;
+    border: 2px solid #fff;
+    position: relative;
+    overflow: hidden;
+    transform: skewX(-15deg);
+}
+
+#bond-fill {
+    height: 100%;
+    background: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+    transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.rank-badge {
+    font-size: 1.5rem;
+    color: var(--accent);
+    text-shadow: 2px 2px 0px #000;
+}
