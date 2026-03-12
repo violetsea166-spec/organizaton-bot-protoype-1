@@ -111,15 +111,18 @@ function updateGoalProgress(habits) {
     }
 }
 
-function triggerBossDefeated() {
-    document.getElementById('boss-defeat-overlay').classList.remove('victory-hidden');
-    assistantSpeak("Target destroyed. Rank increased.");
+function triggerBossDefeated(bossName) {
+    const overlay = document.getElementById('boss-defeat-overlay');
+    if (overlay) {
+        overlay.querySelector('.boss-name').innerText = bossName + " ELIMINATED";
+        overlay.classList.remove('victory-hidden');
+        assistantSpeak("Target destroyed. Your rank has increased.");
+    }
 }
 
-// Keep your existing assistantSpeak, logSystem, and handleLogout functions below this...
-        assistantSpeak("Identity confirmed. Systems online.");
-        fetchHabits(); // Only this needs to be here!
-    }
+function handleLogout() {
+    db.auth.signOut();
+    location.reload(); // Quick reset
 }
 const isBoss = h.name.toUpperCase().includes("BOSS");
 
