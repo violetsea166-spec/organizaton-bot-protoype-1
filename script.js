@@ -53,19 +53,31 @@ async function handleLogin() {
 
 async function handleSignUp() {
     try {
-        if (!db) throw new Error("Database offline.");
+        if (!db) throw new Error("Database connection offline.");
+        
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        if (!email || !password) throw new Error("Email and Passkey required.");
+        if (!email || !password) {
+            logSystem("ERROR: Email and Passkey required for registration.", true);
+            return;
+        }
 
-        const { data, error } = await db.auth.signUp({ email, password });
+        const { data, error } = await db.auth.signUp({ 
+            email, 
+            password,
+            options: {
+                emailRedirectTo: window.location.origin // Helps redirect back to your site
+            }
+        });
+        
         if (error) throw error;
 
-        logSystem("PROTOCOL INITIATED: Check " + email + " for confirmation.");
-        assistantSpeak("Registration complete. Please verify your identity via email.");
+        logSystem("PROTOCOL INITIATED: User created. Try logging in now!");
+        assistantSpeak("Registration protocol complete. Access granted.");
+        
     } catch (err) {
-        logSystem("SIGN UP FAILED: " + err.message, true);
+        logSystem("SIGN UP ERROR: " + err.message, true);
     }
 }
 
