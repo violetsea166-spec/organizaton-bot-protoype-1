@@ -2,83 +2,113 @@ const SUPABASE_URL = 'https://erouxtuagzdpkaywxqld.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_laAnJCp0zc5FDr_h2WqgpA_PohjFjvM';
 
 let db;
-if (typeof supabase !== 'undefined') {
-    db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+try {
+    if (typeof supabase !== 'undefined') {
+        db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("DATABASE: Connection initialized.");
+    } else {
+        throw new Error("Supabase library not found. Check your index.html script tags.");
+    }
+} catch (err) {
+    console.error("INITIALIZATION ERROR:", err.message);
 }
 
-async function handleLogin() {
-    if (!db) {
-        logSystem("SYSTEM ERROR: Database offline.", true);
-        return;
-    }
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    if (!email || !password) {
-        logSystem("ERROR: Credentials required.", true);
-        return;
-    }
+// --- UTILITY FUNCTIONS (Required for error handling) ---
+function logSystem(message, isError = false) {
+    const logEntries = document.getElementById('log-entries');
+    if (!logEntries) return;
+    const entry = document.createElement('div');
+    entry.className = isError ? 'log-entry error' : 'log-entry';
+    entry.innerText = `[${new Date().toLocaleTimeString()}] ${isError ? '>> ERROR: ' : '>> '}${message}`;
+    logEntries.prepend(entry);
+    console.log(message);
+}
 
-    const { data, error } = await db.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-        logSystem("ACCESS DENIED: " + error.message, true);
-        // This will tell you if the user doesn't exist
-    } else {
+function assistantSpeak(text) {
+    console.log("ASSISTANT:", text);
+    // Future ElevenLabs integration goes here
+}
+
+// --- AUTH LOGIC ---
+async function handleLogin() {
+    try {
+        if (!db) throw new Error("Database offline.");
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (!email || !password) throw new Error("Credentials required.");
+
+        const { data, error } = await db.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        assistantSpeak("Identity confirmed. Welcome back, Master.");
+        assistantSpeak("Identity confirmed. Systems online.");
         fetchHabits();
+    } catch (err) {
+        logSystem(err.message, true);
+        assistantSpeak("Access denied.");
     }
 }
 
 async function handleSignUp() {
-    if (!db) return;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    try {
+        if (!db) throw new Error("Database offline.");
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-    if (!email || !password) {
-        logSystem("ERROR: Email and Passkey required for registration.", true);
-        return;
-    }
+        if (!email || !password) throw new Error("Email and Passkey required.");
 
-    const { data, error } = await db.auth.signUp({ email, password });
-    
-    if (error) {
-        logSystem("REGISTRATION FAILED: " + error.message, true);
-    } else {
-        logSystem("SUCCESS: Protocol initiated. Check your email to confirm!");
-        assistantSpeak("Registration successful. Please verify your email to proceed.");
+        const { data, error } = await db.auth.signUp({ email, password });
+        if (error) throw error;
+
+        logSystem("PROTOCOL INITIATED: Check " + email + " for confirmation.");
+        assistantSpeak("Registration complete. Please verify your identity via email.");
+    } catch (err) {
+        logSystem("SIGN UP FAILED: " + err.message, true);
     }
 }
 
+// --- CORE LOGIC ---
 async function fetchHabits() {
-    const { data, error } = await db.from('habits').select('*');
-    if (error) return;
+    try {
+        const { data, error } = await db.from('habits').select('*');
+        if (error) throw error;
 
-    const grid = document.getElementById('habit-grid');
-    grid.innerHTML = data.map(h => {
-        const isBoss = h.name.toUpperCase().includes("BOSS");
-        return `
-            <div class="habit-pin ${isBoss ? 'boss-habit' : ''}">
-                ${isBoss ? '<div class="boss-label">RANKER</div>' : ''}
-                <h3>${h.name}</h3>
-                <div class="streak-badge">🔥 ${h.streak_count || 0} Days</div>
-                ${isBoss ? `<div class="boss-health-bar"><div class="health-fill" style="width: ${Math.min(h.streak_count * 10, 100)}%"></div></div>` : ''}
-                <button onclick="completeHabit('${h.id}', ${h.streak_count}, '${h.last_completed}')" class="game-btn">
-                    ${isBoss ? 'FINISH HIM' : 'COMPLETE'}
-                </button>
-            </div>
-        `;
-    }).join('');
-    updateGoalProgress(data);
+        const grid = document.getElementById('habit-grid');
+        grid.innerHTML = data.map(h => {
+            const isBoss = h.name.toUpperCase().includes("BOSS");
+            return `
+                <div class="habit-pin ${isBoss ? 'boss-habit' : ''}">
+                    ${isBoss ? '<div class="boss-label">RANKER</div>' : ''}
+                    <h3>${h.name}</h3>
+                    <div class="streak-badge">🔥 ${h.streak_count || 0} Days</div>
+                    ${isBoss ? `
+                        <div class="boss-health-bar">
+                            <div class="health-fill" style="width: ${Math.min(h.streak_count * 10, 100)}%"></div>
+                        </div>
+                    ` : ''}
+                    <button onclick="completeHabit('${h.id}', ${h.streak_count})" class="game-btn">
+                        ${isBoss ? 'FINISH HIM' : 'COMPLETE'}
+                    </button>
+                </div>
+            `;
+        }).join('');
+        updateGoalProgress(data);
+    } catch (err) {
+        logSystem("FETCH ERROR: " + err.message, true);
+    }
 }
 
 function updateGoalProgress(habits) {
-    const total = habits.reduce((acc, h) => acc + (h.streak_count || 0), 0);
-    const percent = Math.min((total / 50) * 100, 100);
-    const bar = document.getElementById('momentum-fill');
-    if (bar) bar.style.width = percent + "%";
+    try {
+        const totalStreak = habits.reduce((acc, h) => acc + (h.streak_count || 0), 0);
+        const percent = Math.min((totalStreak / 50) * 100, 100);
+        const bar = document.getElementById('momentum-fill');
+        if (bar) bar.style.width = percent + "%";
+    } catch (err) {
+        console.error("GOAL UPDATE ERROR:", err.message);
+    }
 }
 
 function triggerBossDefeated() {
