@@ -156,21 +156,33 @@ async function fetchHabits() {
     } catch (err) { logSystem(err.message, true); }
 }
 
-async function completeHabit(id, currentStreak, lastCompleted) {
-    const today = new Date().toDateString();
-    const lastDate = lastCompleted ? new Date(lastCompleted).toDateString() : null;
-    if (today === lastDate) { logSystem("Already completed today."); return; }
+async function completeHabit(id, currentStreak) {
+    try {
+        if (!db) throw new Error("Connection Lost");
+        
+        const newStreak = currentStreak + 1;
+        const { data, error } = await db
+            .from('habits')
+            .update({ streak_count: newStreak })
+            .eq('id', id)
+            .select();
 
-    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-    let newStreak = (lastDate === yesterday.toDateString()) ? currentStreak + 1 : 1;
+        if (error) throw error;
 
-    if (newStreak === 7) triggerVictory();
-    if (lastDate !== null && lastDate !== yesterday.toDateString()) {
-        scoldUser("this task");
+        logSystem(`MISSION UPDATED: Streak is now ${newStreak}`);
+        
+        // Find if this was a Boss habit
+        const updatedHabit = data[0];
+        if (updatedHabit.name.toUpperCase().includes("BOSS") && newStreak >= 10) {
+            triggerBossDefeated(updatedHabit.name);
+        } else {
+            assistantSpeak("Target hit. Keep the momentum.");
+        }
+        
+        fetchHabits(); // Refresh UI
+    } catch (err) {
+        logSystem("UPDATE_FAILED: " + err.message, true);
     }
-
-    const { error } = await db.from('habits').update({ streak_count: newStreak, last_completed: new Date().toISOString() }).eq('id', id);
-    if (!error) fetchHabits();
 }
 
 // --- SOCIAL LINK ---
