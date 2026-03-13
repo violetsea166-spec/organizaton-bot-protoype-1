@@ -7,48 +7,41 @@ try {
         db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         console.log("DATABASE: Connection initialized.");
     } else {
-        throw new Error("Supabase library not found. Check your index.html script tags.");
+        throw new Error("Supabase library not found.");
     }
 } catch (err) {
     console.error("INITIALIZATION ERROR:", err.message);
 }
 
-// --- UTILITY FUNCTIONS (Required for error handling) ---
+// --- UTILITIES ---
 function logSystem(message, isError = false) {
     const logEntries = document.getElementById('log-entries');
     if (!logEntries) return;
     const entry = document.createElement('div');
-    entry.className = isError ? 'log-entry error' : 'log-entry';
+    entry.className = isError ? 'log-entry error-text' : 'log-entry';
     entry.innerText = `[${new Date().toLocaleTimeString()}] ${isError ? '>> ERROR: ' : '>> '}${message}`;
     logEntries.prepend(entry);
-    console.log(message);
 }
 
 function assistantSpeak(text) {
+    const aiName = document.getElementById('ai-name');
+    if (aiName) aiName.innerText = text;
     console.log("ASSISTANT:", text);
-    // Future ElevenLabs integration goes here
 }
 
-// --- REFINED AUTH LOGIC ---
+// --- AUTHENTICATION ---
 async function handleLogin() {
     try {
         if (!db) throw new Error("Database offline.");
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        if (!email || !password) throw new Error("Credentials required.");
-
         const { data, error } = await db.auth.signInWithPassword({ email, password });
-        
-        if (error) {
-            // If it says "Invalid credentials" after you just signed up, 
-            // it means the "Confirm Email" setting is still ON in Supabase.
-            throw error;
-        }
+        if (error) throw error;
 
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        assistantSpeak("Identity confirmed. Welcome back.");
+        assistantSpeak("Identity confirmed. Systems online.");
         fetchHabits();
     } catch (err) {
         logSystem("ACCESS DENIED: " + err.message, true);
@@ -61,15 +54,12 @@ async function handleSignUp() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
-        if (!email || !password) throw new Error("Email and Passkey required.");
-
         const { data, error } = await db.auth.signUp({ email, password });
-        
         if (error) throw error;
 
-        logSystem("PROTOCOL SUCCESS: Account created.");
-        assistantSpeak("Registration complete. Now click INITIALIZE to log in.");
-        
+        logSystem("PROTOCOL SUCCESS: Account created. Initializing session...");
+        // Since email confirm is OFF, we can log in immediately
+        handleLogin();
     } catch (err) {
         logSystem("SIGN UP ERROR: " + err.message, true);
     }
@@ -89,37 +79,49 @@ async function fetchHabits() {
                     ${isBoss ? '<div class="boss-label">RANKER</div>' : ''}
                     <h3>${h.name}</h3>
                     <div class="streak-badge">🔥 ${h.streak_count || 0} Days</div>
-                    ${isBoss ? `
-                        <div class="boss-health-bar">
-                            <div class="health-fill" style="width: ${Math.min(h.streak_count * 10, 100)}%"></div>
-                        </div>
-                    ` : ''}
                     <button onclick="completeHabit('${h.id}', ${h.streak_count})" class="game-btn">
-                        ${isBoss ? 'FINISH HIM' : 'COMPLETE'}
+                        ${isBoss ? 'FINISH' : 'COMPLETE'}
                     </button>
                 </div>
             `;
         }).join('');
+
         updateGoalProgress(data);
+        updateSocialLink(data);
     } catch (err) {
         logSystem("FETCH ERROR: " + err.message, true);
     }
 }
 
+function updateSocialLink(habits) {
+    const totalStreak = habits.reduce((acc, h) => acc + (h.streak_count || 0), 0);
+    const rank = Math.floor(totalStreak / 10) + 1;
+    const bondPercent = (totalStreak % 10) * 10;
+    
+    document.getElementById('social-rank').innerText = rank;
+    document.getElementById('bond-fill').style.width = bondPercent + "%";
+    
+    const status = document.getElementById('bond-status');
+    if (rank < 3) status.innerText = "STRANGER";
+    else if (rank < 6) status.innerText = "ACQUAINTANCE";
+    else status.innerText = "SOUL BOUND";
+}
+
 function updateGoalProgress(habits) {
-    try {
-        const totalStreak = habits.reduce((acc, h) => acc + (h.streak_count || 0), 0);
-        const percent = Math.min((totalStreak / 50) * 100, 100);
-        const bar = document.getElementById('momentum-fill');
-        if (bar) bar.style.width = percent + "%";
-    } catch (err) {
-        console.error("GOAL UPDATE ERROR:", err.message);
-    }
+    const total = habits.reduce((acc, h) => acc + (h.streak_count || 0), 0);
+    const percent = Math.min((total / 50) * 100, 100);
+    const bar = document.getElementById('momentum-fill');
+    if (bar) bar.style.width = percent + "%";
 }
 
 function handleLogout() {
     db.auth.signOut();
-    location.reload(); // Quick reset
+    location.reload();
+}
+
+function restartProtocol() {
+    document.getElementById('failure-overlay').classList.add('failure-hidden');
+    fetchHabits();
 }
 const isBoss = h.name.toUpperCase().includes("BOSS");
 
