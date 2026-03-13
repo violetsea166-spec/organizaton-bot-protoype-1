@@ -38,16 +38,23 @@ async function handleSignUp() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
+    if (!email || !password) {
+        logSystem("ERROR: Email and Passkey required.", true);
+        return;
+    }
+
     const { data, error } = await db.auth.signUp({ email, password });
     
     if (error) {
         logSystem("SIGN UP ERROR: " + error.message, true);
     } else {
-        logSystem("PROTOCOL SUCCESS: User created.");
-        assistantSpeak("Account registered. Now click INITIALIZE to enter.");
+        logSystem("PROTOCOL SUCCESS: Account created.");
+        assistantSpeak("User registered. You can now use INITIALIZE to log in.");
+        
+        // Clear the fields so the user knows they are done
+        document.getElementById('password').value = "";
     }
 }
-
 // CRITICAL: Make sure this is NOT running at the bottom of your script anymore
 // fetchHabits(); <--- REMOVE THIS LINE IF IT IS FLOATING AT THE BOTTOM
 
