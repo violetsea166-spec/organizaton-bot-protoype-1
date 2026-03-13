@@ -112,23 +112,31 @@ function triggerRankUp(rank) {
     }, 4000);
 }
 
-// --- HABIT LOGIC ---
 async function fetchHabits() {
+    // This looks at ALL habits in the table since we are bypassing the user filter
     const { data, error } = await db.from('habits').select('*');
-    if (error) return;
+    
+    if (error) {
+        logSystem("DATABASE ERROR: " + error.message, true);
+        return;
+    }
 
     const grid = document.getElementById('habit-grid');
-    grid.innerHTML = data.map(h => `
-        <div class="habit-pin">
-            <h3>${h.name}</h3>
-            <div class="streak-badge">🔥 ${h.streak_count || 0}</div>
-            <button onclick="completeHabit('${h.id}', ${h.streak_count})" class="game-btn">MISSION COMPLETE</button>
-        </div>
-    `).join('');
-
-    updateSocialLink(data);
+    if (grid && data) {
+        grid.innerHTML = data.map(h => `
+            <div class="habit-pin">
+                <h3>${h.name || "New Mission"}</h3>
+                <div class="streak-badge">🔥 ${h.streak_count || 0}</div>
+                <button onclick="completeHabit('${h.id}', ${h.streak_count || 0})" class="game-btn">
+                    MISSION COMPLETE
+                </button>
+            </div>
+        `).join('');
+    }
+    
+    // This updates your Social Link rank
+    if (typeof updateSocialLink === "function") updateSocialLink(data);
 }
-
 async function completeHabit(id, currentStreak) {
     const { error } = await db.from('habits').update({ streak_count: currentStreak + 1 }).eq('id', id);
     if (!error) fetchHabits();
