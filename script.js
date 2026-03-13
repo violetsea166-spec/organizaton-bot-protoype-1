@@ -148,3 +148,11 @@ function logSystem(message, isError = false) {
 function assistantSpeak(text) {
     document.getElementById('ai-name').innerText = text;
 }
+// FIND THIS LINE at the bottom of your file:
+// fetchHabits(); <--- DELETE OR COMMENT THIS OUT
+
+// REPLACE IT WITH THIS:
+window.onload = () => {
+    console.log("System on standby. Awaiting authentication...");
+    // We only call fetchHabits() inside the handleLogin() function now.
+};
