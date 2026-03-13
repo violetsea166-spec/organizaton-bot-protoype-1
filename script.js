@@ -37,35 +37,55 @@ async function handleSignUp() {
     }
 }
 
-// --- SOCIAL LINK SYSTEM ---
-let currentRank = 1;
+let currentRank = 1; // Track this globally at the top of your script
 
 function updateSocialLink(habits) {
-    const totalStreak = habits.reduce((acc, h) => acc + (h.streak_count || 0), 0);
-    const newRank = Math.floor(totalStreak / 10) + 1;
-    
-    // Trigger Animation if Rank increases
-    if (newRank > currentRank) {
-        triggerRankUp(newRank);
-        currentRank = newRank;
-    }
+    try {
+        const totalStreak = habits.reduce((acc, h) => acc + (h.streak_count || 0), 0);
+        
+        // Logic: Rank increases every 10 total points
+        const newRank = Math.floor(totalStreak / 10) + 1;
+        const bondPercent = (totalStreak % 10) * 10;
+        
+        // Trigger Animation ONLY on Rank Up
+        if (newRank > currentRank) {
+            triggerRankUp(newRank);
+            currentRank = newRank;
+        }
 
-    document.getElementById('social-rank').innerText = currentRank;
-    const bondPercent = (totalStreak % 10) * 10;
-    document.getElementById('bond-fill').style.width = bondPercent + "%";
+        // Update UI
+        document.getElementById('social-rank').innerText = currentRank;
+        document.getElementById('bond-fill').style.width = bondPercent + "%";
+        
+        const status = document.getElementById('bond-status');
+        if (currentRank < 3) status.innerText = "STRANGER";
+        else if (currentRank < 6) status.innerText = "CONFIDANT";
+        else if (currentRank < 9) status.innerText = "RELIABLE ALLY";
+        else status.innerText = "SOUL BOUND";
+
+    } catch (err) {
+        console.error("SOCIAL_LINK_ERROR:", err.message);
+    }
 }
 
 function triggerRankUp(rank) {
     const overlay = document.getElementById('boss-defeat-overlay');
+    
+    // Change the overlay content to the Rank Up style
     overlay.innerHTML = `
-        <div class="rank-card-inner">
-            <div class="tarot-card">⭐</div>
-            <div class="rank-up-text">RANK UP: ${rank}</div>
-            <div class="boss-name">THE BOND DEEPENS</div>
+        <div class="rank-card-animation">
+            <div class="card-glow"></div>
+            <div class="tarot-icon">★</div>
+            <div class="rank-up-text">RANK UP</div>
+            <div class="rank-number">${rank}</div>
+            <div class="bond-desc">I am thou, thou art I...</div>
         </div>
     `;
-    overlay.classList.remove('victory-hidden');
     
+    overlay.classList.remove('victory-hidden');
+    assistantSpeak("Your resolve strengthens our bond. Rank Up achieved.");
+
+    // Auto-hide after 4 seconds
     setTimeout(() => {
         overlay.classList.add('victory-hidden');
     }, 4000);
