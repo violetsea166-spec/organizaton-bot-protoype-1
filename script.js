@@ -8,58 +8,48 @@ try {
     console.error("Connection Error:", err);
 }
 
-// --- CORE AUTHENTICATION ---
+// --- STABLE AUTH LOGIC ---
 
 async function handleLogin() {
-    try {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-        if (!email || !password) {
-            logSystem("ERROR: Email and Passkey required.", true);
-            return;
-        }
+    if (!email || !password) {
+        logSystem("ERROR: Enter credentials.", true);
+        return;
+    }
 
-        const { data, error } = await db.auth.signInWithPassword({ email, password });
+    const { data, error } = await db.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+        logSystem("LOGIN FAILED: " + error.message, true);
+    } else {
+        // SUCCESS: Only switch screens now
+        document.getElementById('auth-section').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        logSystem("ACCESS GRANTED. Initializing JARVIS...");
         
-        if (error) {
-            logSystem("ACCESS DENIED: " + error.message, true);
-        } else {
-            // Success: Hide login, show app
-            document.getElementById('auth-section').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            logSystem("IDENTITY CONFIRMED. Systems online.");
-            fetchHabits(); // Load your data
-        }
-    } catch (err) {
-        console.error("Login Crash:", err);
+        // Load the data now that we are inside
+        fetchHabits();
     }
 }
 
 async function handleSignUp() {
-    try {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-        if (!email || !password) {
-            logSystem("ERROR: Email and Passkey required.", true);
-            return;
-        }
-
-        const { data, error } = await db.auth.signUp({ email, password });
-        
-        if (error) {
-            logSystem("SIGN UP ERROR: " + error.message, true);
-        } else {
-            logSystem("PROTOCOL SUCCESS: User created.");
-            // Note: If you haven't disabled 'Confirm Email' in Supabase, 
-            // the user won't be able to login until they click the email link.
-            assistantSpeak("Registration complete. Please initialize login.");
-        }
-    } catch (err) {
-        console.error("Sign Up Crash:", err);
+    const { data, error } = await db.auth.signUp({ email, password });
+    
+    if (error) {
+        logSystem("SIGN UP ERROR: " + error.message, true);
+    } else {
+        logSystem("PROTOCOL SUCCESS: User created.");
+        assistantSpeak("Account registered. Now click INITIALIZE to enter.");
     }
 }
+
+// CRITICAL: Make sure this is NOT running at the bottom of your script anymore
+// fetchHabits(); <--- REMOVE THIS LINE IF IT IS FLOATING AT THE BOTTOM
 
 let currentRank = 1; // Track this globally at the top of your script
 
