@@ -29,14 +29,16 @@ function assistantSpeak(text) {
     console.log("ASSISTANT:", text);
 }
 
-// --- AUTHENTICATION ---
 async function handleLogin() {
     try {
         if (!db) throw new Error("Database offline.");
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
+        if (!email || !password) throw new Error("Credentials required.");
+
         const { data, error } = await db.auth.signInWithPassword({ email, password });
+        
         if (error) throw error;
 
         document.getElementById('auth-section').style.display = 'none';
@@ -54,12 +56,16 @@ async function handleSignUp() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
+        if (!email || !password) throw new Error("Email and Passkey required.");
+
+        // This creates the user
         const { data, error } = await db.auth.signUp({ email, password });
+        
         if (error) throw error;
 
-        logSystem("PROTOCOL SUCCESS: Account created. Initializing session...");
-        // Since email confirm is OFF, we can log in immediately
-        handleLogin();
+        logSystem("PROTOCOL SUCCESS: User created.");
+        assistantSpeak("Registration complete. Now click INITIALIZE to log in.");
+        
     } catch (err) {
         logSystem("SIGN UP ERROR: " + err.message, true);
     }
