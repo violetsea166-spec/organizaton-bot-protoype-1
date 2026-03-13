@@ -153,3 +153,26 @@ window.onload = () => {
     console.log("System on standby. Awaiting authentication...");
     // We only call fetchHabits() inside the handleLogin() function now.
 };
+// --- EMERGENCY BYPASS PROTOCOL ---
+// Forces the UI to show the dashboard without a login
+window.addEventListener('load', () => {
+    console.log("BYPASS: Initializing JARVIS without authentication...");
+    
+    setTimeout(() => {
+        const authSection = document.getElementById('auth-section');
+        const mainContent = document.getElementById('main-content');
+        
+        if (authSection && mainContent) {
+            authSection.style.display = 'none';
+            mainContent.style.display = 'block';
+            
+            // Try to fetch habits, but don't crash if database is still waking up
+            if (typeof fetchHabits === "function") {
+                fetchHabits().catch(err => console.warn("Database fetch skipped during bypass."));
+            }
+            
+            logSystem("BYPASS ACTIVE: Identity verification skipped.");
+            assistantSpeak("Welcome back. Systems forced online.");
+        }
+    }, 500);
+});
