@@ -313,3 +313,53 @@ body { background: var(--bg); color: white; font-family: 'Arial Black', sans-ser
 #bond-fill {
     transition: width 1.5s ease-in-out;
 }
+.rank-card-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: card-entrance 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.tarot-icon {
+    font-size: 8rem;
+    color: gold;
+    text-shadow: 0 0 30px white;
+    margin-bottom: -20px;
+}
+
+.rank-number {
+    font-size: 10rem;
+    font-family: 'Arial Black', sans-serif;
+    color: var(--accent);
+    -webkit-text-stroke: 3px white;
+    filter: drop-shadow(5px 5px 0px black);
+}
+
+.bond-desc {
+    font-style: italic;
+    letter-spacing: 2px;
+    margin-top: 20px;
+    background: white;
+    color: black;
+    padding: 5px 20px;
+}
+
+@keyframes card-entrance {
+    0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.card-glow {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,0,60,0) 70%);
+    z-index: -1;
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.5); opacity: 0.8; }
+}
