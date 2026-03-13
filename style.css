@@ -294,3 +294,22 @@ body { background: var(--bg); color: white; font-family: 'Arial Black', sans-ser
     color: var(--accent);
     text-shadow: 2px 2px 0px #000;
 }
+.rank-card-inner {
+    text-align: center;
+    animation: card-flip 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.tarot-card {
+    font-size: 8rem;
+    filter: drop-shadow(0 0 20px gold);
+    margin-bottom: 20px;
+}
+
+@keyframes card-flip {
+    0% { transform: rotateY(90deg) scale(0.5); opacity: 0; }
+    100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+
+#bond-fill {
+    transition: width 1.5s ease-in-out;
+}
