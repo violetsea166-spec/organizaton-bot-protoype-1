@@ -8,32 +8,56 @@ try {
     console.error("Connection Error:", err);
 }
 
-// --- CORE AUTH ---
+// --- CORE AUTHENTICATION ---
+
 async function handleLogin() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const { data, error } = await db.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-        logSystem("ACCESS DENIED: " + error.message, true);
-    } else {
-        document.getElementById('auth-section').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        assistantSpeak("Identity confirmed. Systems online.");
-        fetchHabits();
+    try {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (!email || !password) {
+            logSystem("ERROR: Email and Passkey required.", true);
+            return;
+        }
+
+        const { data, error } = await db.auth.signInWithPassword({ email, password });
+        
+        if (error) {
+            logSystem("ACCESS DENIED: " + error.message, true);
+        } else {
+            // Success: Hide login, show app
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            logSystem("IDENTITY CONFIRMED. Systems online.");
+            fetchHabits(); // Load your data
+        }
+    } catch (err) {
+        console.error("Login Crash:", err);
     }
 }
 
 async function handleSignUp() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const { data, error } = await db.auth.signUp({ email, password });
-    
-    if (error) {
-        logSystem("SIGN UP ERROR: " + error.message, true);
-    } else {
-        logSystem("PROTOCOL SUCCESS: Account created. You can now login.");
-        assistantSpeak("Registration complete. Initialize system access.");
+    try {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (!email || !password) {
+            logSystem("ERROR: Email and Passkey required.", true);
+            return;
+        }
+
+        const { data, error } = await db.auth.signUp({ email, password });
+        
+        if (error) {
+            logSystem("SIGN UP ERROR: " + error.message, true);
+        } else {
+            logSystem("PROTOCOL SUCCESS: User created.");
+            // Note: If you haven't disabled 'Confirm Email' in Supabase, 
+            // the user won't be able to login until they click the email link.
+            assistantSpeak("Registration complete. Please initialize login.");
+        }
+    } catch (err) {
+        console.error("Sign Up Crash:", err);
     }
 }
 
