@@ -72,6 +72,24 @@ function updateSocialLink(habits) {
         if (newRank > currentRank) {
             triggerRankUp(newRank);
             currentRank = newRank;
+function triggerRankUp(newRank) {
+    // 1. Play the Persona 5 Rank Up Chime
+    const chime = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'); 
+    chime.volume = 0.5;
+    chime.play();
+
+    // 2. Show the level-up overlay (Social Link style)
+    const overlay = document.getElementById('boss-defeat-overlay');
+    if (overlay) overlay.classList.remove('victory-hidden');
+
+    // 3. JARVIS Voice via ElevenLabs
+    assistantSpeak(`Social Link established. You have reached Rank ${newRank}. Impressive work, Admin.`);
+
+    // 4. Hide overlay after 4 seconds
+    setTimeout(() => {
+        if (overlay) overlay.classList.add('victory-hidden');
+    }, 4000);
+}
         }
 
         // Update UI
