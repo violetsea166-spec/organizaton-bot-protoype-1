@@ -198,8 +198,21 @@ async function fetchHabits() {
     if (typeof updateSocialLink === "function") updateSocialLink(data);
 }
 async function completeHabit(id, currentStreak) {
-    const { error } = await db.from('habits').update({ streak_count: currentStreak + 1 }).eq('id', id);
-    if (!error) fetchHabits();
+    const newStreak = (currentStreak || 0) + 1;
+    const now = new Date().toISOString(); // Records the exact moment of completion
+
+    const { error } = await db
+        .from('habits')
+        .update({ 
+            streak_count: newStreak,
+            last_updated: now // This stops the "Mission Failed" from triggering falsely
+        })
+        .eq('id', id);
+
+    if (!error) {
+        logSystem("MISSION COMPLETE: Data synced.");
+        fetchHabits(); 
+    }
 }
 
 function logSystem(message, isError = false) {
