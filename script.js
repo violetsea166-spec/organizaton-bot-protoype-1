@@ -188,7 +188,7 @@ window.addEventListener('load', () => {
 // JARVIS VOICE & BYPASS MODULE
 // ==========================================
 
-const ELEVENLABS_API_KEY = 'YOUR_API_KEY_HERE'; // Add your key from ElevenLabs
+const ELEVENLABS_API_KEY = 'sk_e488b065cb727d2a7dbc69a8aa5388bcc477484de49256ac'; // Add your key from ElevenLabs
 const VOICE_ID = 'pNInz6obpg8n9icWJwpf'; // A deep, JARVIS-style voice
 
 async function assistantSpeak(text) {
