@@ -113,13 +113,55 @@ function triggerRankUp(rank) {
 }
 
 async function fetchHabits() {
-    // This looks at ALL habits in the table since we are bypassing the user filter
+    // 1. Fetch data from Supabase
     const { data, error } = await db.from('habits').select('*');
-    
     if (error) {
         logSystem("DATABASE ERROR: " + error.message, true);
         return;
     }
+
+    const grid = document.getElementById('habit-grid');
+    if (!grid) return;
+
+    // 2. Mission Failed Check (If a streak is missed)
+    const now = new Date();
+    let failureDetected = false;
+
+    data.forEach(h => {
+        if (h.streak_count > 0 && h.last_updated) {
+            const lastUpdate = new Date(h.last_updated);
+            const hoursSince = (now - lastUpdate) / (1000 * 60 * 60);
+            
+            // If it's been over 24 hours since the last mission completion
+            if (hoursSince > 24) { 
+                resetStreakInDB(h.id); 
+                failureDetected = true;
+            }
+        }
+    });
+
+    if (failureDetected) {
+        triggerMissionFailure(); // Triggers grayscale and JARVIS voice
+        return; // Stop rendering until the user clicks Reinitialize
+    }
+
+    // 3. Render the habits WITH the STREAK BADGE
+    grid.innerHTML = data.map(h => `
+        <div class="habit-pin">
+            <div class="habit-header">
+                <h3>${h.name || "New Mission"}</h3>
+                <div class="streak-badge">
+                    <span class="fire-icon">🔥</span> 
+                    <span class="count">${h.streak_count || 0}</span>
+                </div>
+            </div>
+            
+            <button onclick="completeHabit('${h.id}', ${h.streak_count || 0})" class="game-btn">
+                MISSION COMPLETE
+            </button>
+        </div>
+    `).join('');
+}
 
     const grid = document.getElementById('habit-grid');
     if (grid && data) {
