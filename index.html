@@ -28,7 +28,14 @@
         <div class="social-link-container">
             <div class="rank-badge">RANK <span id="social-rank">1</span></div>
             <div class="bond-meter"><div id="bond-fill" style="width: 10%"></div></div>
-            <p id="bond-status">STRANGER</p>
+            <p id="bond-status">STRANGER</p><div id="failure-overlay" class="failure-hidden">
+    <div class="glitch-container">
+        <h1 class="glitch-text" data-text="MISSION FAILED">MISSION FAILED</h1>
+        <p class="failure-sub">CONSISTENCY PROTOCOL TERMINATED</p>
+        <div class="streak-lost-box">STREAK RESET TO 0</div>
+        <button onclick="restartProtocol()" class="game-btn">REINITIALIZE SYSTEM</button>
+    </div>
+</div>
         </div>
         <button onclick="handleLogout()" class="logout-btn">DISCONNECT</button>
     </div>
