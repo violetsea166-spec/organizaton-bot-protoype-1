@@ -319,3 +319,27 @@ window.addEventListener('load', () => {
         }
     }, 1000);
 });
+// ==========================================
+// GAME STATE TRIGGERS (FAILURE & SUCCESS)
+// ==========================================
+
+function triggerMissionFailure() {
+    const failureOverlay = document.getElementById('failure-overlay');
+    if (failureOverlay) {
+        failureOverlay.classList.remove('failure-hidden');
+    }
+    
+    // Apply the P5 "Despair" filter to the entire page
+    document.body.style.filter = "grayscale(1) contrast(1.5) brightness(0.7)";
+    
+    // JARVIS speaks the failure line
+    assistantSpeak("Consistency protocol terminated. You have allowed the streak to wither. Reinitialization required.");
+}
+
+function restartProtocol() {
+    // Revert the visual filters
+    document.body.style.filter = "none";
+    
+    // Refresh the page to reset the UI and try a clean fetch
+    location.reload(); 
+}
