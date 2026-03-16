@@ -184,3 +184,78 @@ window.addEventListener('load', () => {
         }
     }, 500);
 });
+// ==========================================
+// JARVIS VOICE & BYPASS MODULE
+// ==========================================
+
+const ELEVENLABS_API_KEY = 'YOUR_API_KEY_HERE'; // Add your key from ElevenLabs
+const VOICE_ID = 'pNInz6obpg8n9icWJwpf'; // A deep, JARVIS-style voice
+
+async function assistantSpeak(text) {
+    console.log("JARVIS:", text);
+    try {
+        const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'xi-api-key': ELEVENLABS_API_KEY
+            },
+            body: JSON.stringify({
+                text: text,
+                model_id: "eleven_monolingual_v1",
+                voice_settings: { stability: 0.5, similarity_boost: 0.75 }
+            })
+        });
+
+        if (response.ok) {
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+            audio.play();
+        }
+    } catch (err) {
+        console.error("Voice Error:", err);
+    }
+}
+
+// --- PERSONA 5 RANK UP (Chime + Voice) ---
+function triggerRankUp(rank) {
+    // 1. Play the "Shwing" Chime
+    const chime = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'); 
+    chime.volume = 0.6;
+    chime.play();
+
+    // 2. Show the Overlay
+    const overlay = document.getElementById('boss-defeat-overlay');
+    overlay.classList.remove('victory-hidden');
+
+    // 3. JARVIS Speaks the Rank Up
+    setTimeout(() => {
+        assistantSpeak(`Social Link established. You have reached Rank ${rank}.`);
+    }, 800);
+
+    // Hide after 5 seconds
+    setTimeout(() => {
+        overlay.classList.add('victory-hidden');
+    }, 5000);
+}
+
+// --- EMERGENCY BYPASS ---
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const auth = document.getElementById('auth-section');
+        const main = document.getElementById('main-content');
+        
+        if (auth && main) {
+            auth.style.display = 'none';
+            main.style.display = 'block';
+            logSystem("BYPASS ENABLED: Welcome back, Admin.");
+            
+            // Start the system
+            if (typeof fetchHabits === "function") fetchHabits();
+            
+            // Greeting
+            assistantSpeak("Systems initialized. All protocols online.");
+        }
+    }, 1000);
+});
