@@ -3,38 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Assistant Shell</title>
+    <title>JARVIS Protocol | Persona Edition</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div id="app-container">
-        <header>
-            <div id="assistant-circle"></div>
-            <h1 id="greeting">Awaiting orders, Master Wayne...</h1>
-            <div class="voice-selector">
-                <label for="voiceSelect">Assistant Voice:</label>
-                <select id="voiceSelect"></select>
-            </div>
-        </header>
+    <div id="app-shell">
+        <div id="auth-section" class="panel slanted auth-card">
+    <h2 class="glitch-text">SYSTEM ACCESS</h2>
+    <div class="input-group">
+        <input type="email" id="email" placeholder="USER_EMAIL@DOMAIN.COM">
+        <input type="password" id="password" placeholder="PASSKEY">
+    </div>
+<div class="auth-buttons" style="display: flex; gap: 10px; margin-top: 15px;">
+    <button onclick="handleLogin()" class="game-btn">INITIALIZE</button>
+    <button onclick="handleSignUp()" class="game-btn" style="background: #444;">NEW USER</button>
+</div>
+    <p id="auth-status"></p>
+</div>
 
-        <section class="progress-container">
-            <h3>Daily Momentum</h3>
-            <div class="progress-bar">
-                <div id="main-progress" style="width: 0%"></div>
-            </div>
-            <p id="progress-text">0% Complete</p>
-        </section>
-
-        <main id="tracker">
-            <div class="input-group">
-                <input type="text" id="habitInput" placeholder=" Add a habit (e.g., Drink Water)">
-                <input type="time" id="reminderTime">
-                <button onclick="addHabit()">Add Habit</button>
-            </div>
-            <ul id="habitList"></ul>
-        </main>
+   <div id="main-content" style="display:none;">
+    <div class="panel assistant-card slanted">
+        <h2 id="ai-name">JARVIS</h2>
+        <div class="social-link-container">
+            <div class="rank-badge">RANK <span id="social-rank">1</span></div>
+            <div class="bond-meter"><div id="bond-fill" style="width: 10%"></div></div>
+            <p id="bond-status">STRANGER</p><div id="failure-overlay" class="failure-hidden">
+    <div class="glitch-container">
+        <h1 class="glitch-text" data-text="MISSION FAILED">MISSION FAILED</h1>
+        <p class="failure-sub">CONSISTENCY PROTOCOL TERMINATED</p>
+        <div class="streak-lost-box">STREAK RESET TO 0</div>
+        <button onclick="restartProtocol()" class="game-btn">REINITIALIZE SYSTEM</button>
+    </div>
+</div>
+        </div>
+        <button onclick="handleLogout()" class="logout-btn">DISCONNECT</button>
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <div class="panel streak-header slanted">
+        <span class="fire-icon">🔥</span> TOTAL MOMENTUM: <span id="global-streak">0</span>
+    </div>
+
+    <div class="panel goal-section slanted">
+        <h2 class="nmh-header">RANKING MISSIONS</h2>
+        <div id="goal-list">
+            <div class="goal-item">
+                <span class="rank-num">#01</span>
+                <span class="goal-text">TOTAL MOMENTUM GOAL</span>
+                <div class="goal-progress-bar"><div id="momentum-fill" style="width: 0%"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-container">
+        <div class="panel habit-input">
+            <input type="text" id="habitName" placeholder="New Mission...">
+            <button class="add-btn" onclick="addNewHabit()">+</button>
+        </div>
+        <div id="habit-grid" class="masonry"></div>
+    </div>
+
+    <div id="log-console" class="panel console-box">
+        <div class="console-header">SYSTEM_LOGS_V1.0</div>
+        <div id="log-entries"></div>
+    </div>
+</div>
+    </div>
+
+    <div id="victory-overlay" class="victory-hidden">
+        <div class="victory-banner">VICTORY_ACHIEVED</div>
+        <div class="victory-subtext">STREAK: 7 DAYS - PROTOCOL COMPLETE</div>
+    </div>
+    <div id="failure-overlay" class="failure-hidden">
+        <div class="failure-glitch">MISSION_FAILED</div>
+        <div class="failure-subtext">CRITICAL CONSISTENCY ERROR: STREAK LOST</div>
+        <button onclick="restartProtocol()" class="game-btn">RE-INITIALIZE PROTOCOL</button>
+    </div>
+<div id="boss-defeat-overlay" class="victory-hidden boss-defeat-style">
+    <div class="rank-card-animation">
+        <div class="tarot-icon">★</div>
+        <div class="rank-up-text">RANK UP</div>
+        <div class="rank-number" id="rank-display">0</div>
+        <div class="bond-desc">The bond has been strengthened.</div>
+    </div>
+</div>
+
+<div id="failure-overlay" class="failure-hidden">
+    <div class="glitch-container">
+        <h1 class="glitch-text" data-text="MISSION FAILED">MISSION FAILED</h1>
+        <p class="failure-subtext">CRITICAL CONSISTENCY ERROR: STREAK LOST</p>
+        <button onclick="restartProtocol()" class="game-btn">RE-INITIALIZE PROTOCOL</button>
+    </div>
+</div>
+
