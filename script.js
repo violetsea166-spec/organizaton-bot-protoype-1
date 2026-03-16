@@ -356,3 +356,17 @@ function restartProtocol() {
     // Refresh the page to reset the UI and try a clean fetch
     location.reload(); 
 }
+function triggerMissionFailure() {
+    const failureOverlay = document.getElementById('failure-overlay');
+    if (failureOverlay) failureOverlay.classList.remove('failure-hidden');
+    
+    // Play the Emergency Alert Sound
+    const alertSound = new Audio('https://assets.mixkit.co/active_storage/sfx/951/951-preview.mp3');
+    alertSound.volume = 0.4;
+    alertSound.play();
+
+    document.body.style.filter = "grayscale(1) contrast(1.5) brightness(0.7)";
+    
+    // JARVIS Voice
+    assistantSpeak("Critical error. You have allowed the bond to wither. The streak has been terminated.");
+}
