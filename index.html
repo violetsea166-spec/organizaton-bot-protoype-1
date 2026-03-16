@@ -80,8 +80,19 @@
         <button onclick="restartProtocol()" class="game-btn">RE-INITIALIZE PROTOCOL</button>
     </div>
 <div id="boss-defeat-overlay" class="victory-hidden boss-defeat-style">
-    <div class="rank-up-text">RANK UP</div>
-    <div class="boss-name">RANKER ELIMINATED</div>
-    <button onclick="document.getElementById('boss-defeat-overlay').classList.add('victory-hidden')" class="game-btn">CONTINUE</button>
+    <div class="rank-card-animation">
+        <div class="tarot-icon">★</div>
+        <div class="rank-up-text">RANK UP</div>
+        <div class="rank-number" id="rank-display">0</div>
+        <div class="bond-desc">The bond has been strengthened.</div>
+    </div>
+</div>
+
+<div id="failure-overlay" class="failure-hidden">
+    <div class="glitch-container">
+        <h1 class="glitch-text" data-text="MISSION FAILED">MISSION FAILED</h1>
+        <p class="failure-subtext">CRITICAL CONSISTENCY ERROR: STREAK LOST</p>
+        <button onclick="restartProtocol()" class="game-btn">RE-INITIALIZE PROTOCOL</button>
+    </div>
 </div>
 
