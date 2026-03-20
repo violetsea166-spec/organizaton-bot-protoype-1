@@ -10,6 +10,8 @@ try {
 
 // --- STABLE AUTH LOGIC ---
 
+let currentUserId = null;
+
 async function handleLogin() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -19,12 +21,13 @@ async function handleLogin() {
         return;
     }
 
-    const { data, error } = await db.auth.signInWithPassword({ email, password });
+    const { data, error } = await db.from('users').select('*').eq('email', email).eq('password', password).maybeSingle();
     
-    if (error) {
-        logSystem("LOGIN FAILED: " + error.message, true);
+    if (error || !data) {
+        logSystem("LOGIN FAILED: Invalid credentials", true);
     } else {
-        // SUCCESS: Only switch screens now
+        // SUCCESS:
+        currentUserId = data.id;
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         logSystem("ACCESS GRANTED. Initializing JARVIS...");
@@ -43,7 +46,7 @@ async function handleSignUp() {
         return;
     }
 
-    const { data, error } = await db.auth.signUp({ email, password });
+    const { data, error } = await db.from('users').insert([{ email, password }]).select().single();
     
     if (error) {
         logSystem("SIGN UP ERROR: " + error.message, true);
@@ -72,24 +75,6 @@ function updateSocialLink(habits) {
         if (newRank > currentRank) {
             triggerRankUp(newRank);
             currentRank = newRank;
-function triggerRankUp(newRank) {
-    // 1. Play the Persona 5 Rank Up Chime
-    const chime = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'); 
-    chime.volume = 0.5;
-    chime.play();
-
-    // 2. Show the level-up overlay (Social Link style)
-    const overlay = document.getElementById('boss-defeat-overlay');
-    if (overlay) overlay.classList.remove('victory-hidden');
-
-    // 3. JARVIS Voice via ElevenLabs
-    assistantSpeak(`Social Link established. You have reached Rank ${newRank}. Impressive work, Admin.`);
-
-    // 4. Hide overlay after 4 seconds
-    setTimeout(() => {
-        if (overlay) overlay.classList.add('victory-hidden');
-    }, 4000);
-}
         }
 
         // Update UI
@@ -107,32 +92,12 @@ function triggerRankUp(newRank) {
     }
 }
 
-function triggerRankUp(rank) {
-    const overlay = document.getElementById('boss-defeat-overlay');
-    
-    // Change the overlay content to the Rank Up style
-    overlay.innerHTML = `
-        <div class="rank-card-animation">
-            <div class="card-glow"></div>
-            <div class="tarot-icon">★</div>
-            <div class="rank-up-text">RANK UP</div>
-            <div class="rank-number">${rank}</div>
-            <div class="bond-desc">I am thou, thou art I...</div>
-        </div>
-    `;
-    
-    overlay.classList.remove('victory-hidden');
-    assistantSpeak("Your resolve strengthens our bond. Rank Up achieved.");
-
-    // Auto-hide after 4 seconds
-    setTimeout(() => {
-        overlay.classList.add('victory-hidden');
-    }, 4000);
-}
 
 async function fetchHabits() {
+    if (!currentUserId) return;
+    
     // 1. Fetch data from Supabase
-    const { data, error } = await db.from('habits').select('*');
+    const { data, error } = await db.from('habits').select('*').eq('user_id', currentUserId);
     if (error) {
         logSystem("DATABASE ERROR: " + error.message, true);
         return;
@@ -152,7 +117,7 @@ async function fetchHabits() {
             
             // If it's been over 24 hours since the last mission completion
             if (hoursSince > 24) { 
-                resetStreakInDB(h.id); 
+                if (typeof resetStreakInDB === "function") resetStreakInDB(h.id); 
                 failureDetected = true;
             }
         }
@@ -179,21 +144,7 @@ async function fetchHabits() {
             </button>
         </div>
     `).join('');
-}
 
-    const grid = document.getElementById('habit-grid');
-    if (grid && data) {
-        grid.innerHTML = data.map(h => `
-            <div class="habit-pin">
-                <h3>${h.name || "New Mission"}</h3>
-                <div class="streak-badge">🔥 ${h.streak_count || 0}</div>
-                <button onclick="completeHabit('${h.id}', ${h.streak_count || 0})" class="game-btn">
-                    MISSION COMPLETE
-                </button>
-            </div>
-        `).join('');
-    }
-    
     // This updates your Social Link rank
     if (typeof updateSocialLink === "function") updateSocialLink(data);
 }
@@ -239,7 +190,7 @@ window.onload = () => {
 window.addEventListener('load', () => {
     console.log("BYPASS: Initializing JARVIS without authentication...");
     
-    setTimeout(() => {
+    setTimeout(async () => {
         const authSection = document.getElementById('auth-section');
         const mainContent = document.getElementById('main-content');
         
@@ -247,9 +198,18 @@ window.addEventListener('load', () => {
             authSection.style.display = 'none';
             mainContent.style.display = 'block';
             
+            // Auto bypass logic: find or create an admin user in the custom users table
+            const { data } = await db.from('users').select('*').eq('email', 'admin@jarvis.com').maybeSingle();
+            if (data) {
+                currentUserId = data.id;
+            } else {
+                const res = await db.from('users').insert([{ email: 'admin@jarvis.com', password: 'admin' }]).select().single();
+                currentUserId = res.data?.id || null;
+            }
+            
             // Try to fetch habits, but don't crash if database is still waking up
             if (typeof fetchHabits === "function") {
-                fetchHabits().catch(err => console.warn("Database fetch skipped during bypass."));
+                fetchHabits().catch(err => console.warn("Database fetch skipped during bypass.", err));
             }
             
             logSystem("BYPASS ACTIVE: Identity verification skipped.");
@@ -300,6 +260,18 @@ function triggerRankUp(rank) {
 
     // 2. Show the Overlay
     const overlay = document.getElementById('boss-defeat-overlay');
+    
+    // Change the overlay content to the Rank Up style
+    overlay.innerHTML = `
+        <div class="rank-card-animation">
+            <div class="card-glow"></div>
+            <div class="tarot-icon">★</div>
+            <div class="rank-up-text">RANK UP</div>
+            <div class="rank-number">${rank}</div>
+            <div class="bond-desc">I am thou, thou art I...</div>
+        </div>
+    `;
+    
     overlay.classList.remove('victory-hidden');
 
     // 3. JARVIS Speaks the Rank Up
@@ -313,49 +285,10 @@ function triggerRankUp(rank) {
     }, 5000);
 }
 
-// --- EMERGENCY BYPASS ---
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        const auth = document.getElementById('auth-section');
-        const main = document.getElementById('main-content');
-        
-        if (auth && main) {
-            auth.style.display = 'none';
-            main.style.display = 'block';
-            logSystem("BYPASS ENABLED: Welcome back, Admin.");
-            
-            // Start the system
-            if (typeof fetchHabits === "function") fetchHabits();
-            
-            // Greeting
-            assistantSpeak("Systems initialized. All protocols online.");
-        }
-    }, 1000);
-});
 // ==========================================
 // GAME STATE TRIGGERS (FAILURE & SUCCESS)
 // ==========================================
 
-function triggerMissionFailure() {
-    const failureOverlay = document.getElementById('failure-overlay');
-    if (failureOverlay) {
-        failureOverlay.classList.remove('failure-hidden');
-    }
-    
-    // Apply the P5 "Despair" filter to the entire page
-    document.body.style.filter = "grayscale(1) contrast(1.5) brightness(0.7)";
-    
-    // JARVIS speaks the failure line
-    assistantSpeak("Consistency protocol terminated. You have allowed the streak to wither. Reinitialization required.");
-}
-
-function restartProtocol() {
-    // Revert the visual filters
-    document.body.style.filter = "none";
-    
-    // Refresh the page to reset the UI and try a clean fetch
-    location.reload(); 
-}
 function triggerMissionFailure() {
     const failureOverlay = document.getElementById('failure-overlay');
     if (failureOverlay) failureOverlay.classList.remove('failure-hidden');
@@ -365,8 +298,55 @@ function triggerMissionFailure() {
     alertSound.volume = 0.4;
     alertSound.play();
 
+    // Apply the P5 "Despair" filter to the entire page
     document.body.style.filter = "grayscale(1) contrast(1.5) brightness(0.7)";
     
-    // JARVIS Voice
+    // JARVIS speaks the failure line
     assistantSpeak("Critical error. You have allowed the bond to wither. The streak has been terminated.");
+}
+
+function restartProtocol() {
+    // Revert the visual filters
+    document.body.style.filter = "none";
+    
+    // Refresh the page to reset the UI and try a clean fetch
+    location.reload(); 
+}
+
+// ==========================================
+// MISSING CORE FUNCTIONS
+// ==========================================
+
+async function resetStreakInDB(id) {
+    const { error } = await db.from('habits').update({ streak_count: 0 }).eq('id', id);
+    if (error) logSystem("ERROR resetting streak: " + error.message, true);
+}
+
+async function addNewHabit() {
+    const nameInput = document.getElementById('habitName');
+    const name = nameInput.value.trim();
+    if (!name || !currentUserId) return;
+
+    const { error } = await db.from('habits').insert([{
+        name: name,
+        streak_count: 0,
+        last_updated: new Date().toISOString(),
+        user_id: currentUserId
+    }]);
+
+    if (error) {
+        logSystem("ERROR adding mission: " + error.message, true);
+    } else {
+        nameInput.value = '';
+        logSystem("New active mission assigned.");
+        fetchHabits();
+    }
+}
+
+async function handleLogout() {
+    currentUserId = null;
+    document.getElementById('auth-section').style.display = 'block';
+    document.getElementById('main-content').style.display = 'none';
+    logSystem("SYSTEM DISCONNECTED.");
+    assistantSpeak("Goodbye, Admin.");
 }
